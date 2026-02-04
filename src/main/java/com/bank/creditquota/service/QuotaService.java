@@ -3,7 +3,6 @@ package com.bank.creditquota.service;
 import com.bank.creditquota.dto.QuotaRequestDTO;
 import com.bank.creditquota.dto.QuotaResponseDTO;
 import com.bank.creditquota.entity.CustomerQuota;
-import com.bank.creditquota.entity.QuotaTransaction;
 import java.math.BigDecimal;
 
 public interface QuotaService {
@@ -56,4 +55,29 @@ public interface QuotaService {
      * 回收额度
      */
     QuotaResponseDTO recoverQuota(QuotaRequestDTO request);
+    
+    /**
+     * 启用额度
+     */
+    QuotaResponseDTO enableQuota(QuotaRequestDTO request);
+    
+    /**
+     * 停用额度
+     */
+    QuotaResponseDTO disableQuota(QuotaRequestDTO request);
+    
+    /**
+     * 获取集团额度信息
+     */
+    QuotaResponseDTO getGroupQuota(String groupId);
+    
+    /**
+     * 获取集团下所有成员额度汇总
+     */
+    QuotaResponseDTO getGroupMembersQuota(String groupId);
+    
+    /**
+     * 额度层级分配（集团额度向下分解）
+     */
+    QuotaResponseDTO distributeGroupQuota(QuotaRequestDTO request);
 }

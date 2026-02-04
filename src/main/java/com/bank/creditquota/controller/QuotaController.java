@@ -76,4 +76,34 @@ public class QuotaController {
         QuotaResponseDTO response = quotaService.recoverQuota(request);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/enable")
+    public ResponseEntity<QuotaResponseDTO> enableQuota(@RequestBody QuotaRequestDTO request) {
+        QuotaResponseDTO response = quotaService.enableQuota(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/disable")
+    public ResponseEntity<QuotaResponseDTO> disableQuota(@RequestBody QuotaRequestDTO request) {
+        QuotaResponseDTO response = quotaService.disableQuota(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/group/{groupId}")
+    public ResponseEntity<QuotaResponseDTO> getGroupQuota(@PathVariable String groupId) {
+        QuotaResponseDTO response = quotaService.getGroupQuota(groupId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/group/{groupId}/members")
+    public ResponseEntity<QuotaResponseDTO> getGroupMembersQuota(@PathVariable String groupId) {
+        QuotaResponseDTO response = quotaService.getGroupMembersQuota(groupId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/distribute-group")
+    public ResponseEntity<QuotaResponseDTO> distributeGroupQuota(@RequestBody QuotaRequestDTO request) {
+        QuotaResponseDTO response = quotaService.distributeGroupQuota(request);
+        return ResponseEntity.ok(response);
+    }
 }

@@ -1,52 +1,23 @@
 package com.bank.creditquota.entity;
 
-import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "customer_quotas")
 @Data
 public class CustomerQuota {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
-    @Column(nullable = false)
-    private String customerId;
-    
-    @Column(nullable = false)
-    private Long quotaTypeId;
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "quotaTypeId", insertable = false, updatable = false)
-    private QuotaType quotaType;
-    
-    @Column(precision = 18, scale = 2, nullable = false)
-    private BigDecimal totalAmount;
-    
-    @Column(precision = 18, scale = 2, nullable = false)
-    private BigDecimal usedAmount = BigDecimal.ZERO;
-    
-    @Column(precision = 18, scale = 2, nullable = false)
-    private BigDecimal availableAmount;
-    
-    @Column(precision = 18, scale = 2)
-    private BigDecimal frozenAmount = BigDecimal.ZERO;
-    
-    @Enumerated(EnumType.STRING)
-    private QuotaStatus status = QuotaStatus.ACTIVE;
-    
-    private LocalDateTime effectiveDate;
-    
-    private LocalDateTime expireDate;
-    
+    private String customerId;      // 客户ID
+    private Long quotaTypeId;       // 额度类型ID
+    private BigDecimal totalAmount; // 总额度
+    private BigDecimal usedAmount;  // 已用额度
+    private BigDecimal availableAmount; // 可用额度
+    private BigDecimal frozenAmount;    // 冻结额度
+    private Integer status;             // 状态：1-启用, 0-禁用
+    private Integer quotaLevel;         // 额度层级：1-集团额度, 2-客户额度
+    private String parentQuotaId;       // 父额度ID（用于集团额度分解）
+    private LocalDateTime effectiveDate; // 生效日期
+    private LocalDateTime expireDate;    // 到期日期
     private LocalDateTime createdAt;
-    
     private LocalDateTime updatedAt;
-    
-    public enum QuotaStatus {
-        ACTIVE, INACTIVE, FROZEN, EXPIRED
-    }
 }

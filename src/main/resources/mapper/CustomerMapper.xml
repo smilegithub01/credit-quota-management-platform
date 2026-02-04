@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bank.creditquota.mapper.CustomerMapper">
+    <resultMap id="CustomerResultMap" type="com.bank.creditquota.entity.Customer">
+        <id property="customerId" column="customer_id"/>
+        <result property="customerName" column="customer_name"/>
+        <result property="customerType" column="customer_type"/>
+        <result property="parentCustomerId" column="parent_customer_id"/>
+        <result property="customerLevel" column="customer_level"/>
+        <result property="isActive" column="is_active"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        customer_id, customer_name, customer_type, parent_customer_id, customer_level, is_active, created_at, updated_at
+    </sql>
+
+    <insert id="insert" parameterType="com.bank.creditquota.entity.Customer">
+        INSERT INTO customers (customer_id, customer_name, customer_type, parent_customer_id, customer_level, is_active, created_at, updated_at)
+        VALUES (#{customerId}, #{customerName}, #{customerType}, #{parentCustomerId}, #{customerLevel}, #{isActive}, NOW(), NOW())
+    </insert>
+
+    <update id="updateById" parameterType="com.bank.creditquota.entity.Customer">
+        UPDATE customers
+        <set>
+            <if test="customerName != null">
+                customer_name = #{customerName},
+            </if>
+            <if test="customerType != null">
+                customer_type = #{customerType},
+            </if>
+            <if test="parentCustomerId != null">
+                parent_customer_id = #{parentCustomerId},
+            </if>
+            <if test="customerLevel != null">
+                customer_level = #{customerLevel},
+            </if>
+            <if test="isActive != null">
+                is_active = #{isActive},
+            </if>
+            updated_at = NOW()
+        </set>
+        WHERE customer_id = #{customerId}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.String">
+        DELETE FROM customers WHERE customer_id = #{customerId}
+    </delete>
+
+    <select id="selectById" parameterType="java.lang.String" resultMap="CustomerResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM customers
+        WHERE customer_id = #{customerId}
+    </select>
+
+    <select id="selectAll" resultMap="CustomerResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM customers
+        ORDER BY customer_id DESC
+    </select>
+
+    <select id="selectByParentId" parameterType="java.lang.String" resultMap="CustomerResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM customers
+        WHERE parent_customer_id = #{parentCustomerId}
+    </select>
+
+    <select id="selectByType" parameterType="java.lang.Integer" resultMap="CustomerResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM customers
+        WHERE customer_type = #{customerType}
+    </select>
+</mapper>

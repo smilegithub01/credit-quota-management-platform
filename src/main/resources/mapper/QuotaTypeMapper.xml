@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bank.creditquota.mapper.QuotaTypeMapper">
+    <resultMap id="QuotaTypeResultMap" type="com.bank.creditquota.entity.QuotaType">
+        <id property="id" column="id"/>
+        <result property="quotaTypeName" column="quota_type_name"/>
+        <result property="quotaCategory" column="quota_category"/>
+        <result property="description" column="description"/>
+        <result property="isActive" column="is_active"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, quota_type_name, quota_category, description, is_active, created_at, updated_at
+    </sql>
+
+    <insert id="insert" parameterType="com.bank.creditquota.entity.QuotaType" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO quota_types (quota_type_name, quota_category, description, is_active, created_at, updated_at)
+        VALUES (#{quotaTypeName}, #{quotaCategory}, #{description}, #{isActive}, NOW(), NOW())
+    </insert>
+
+    <update id="updateById" parameterType="com.bank.creditquota.entity.QuotaType">
+        UPDATE quota_types
+        <set>
+            <if test="quotaTypeName != null">
+                quota_type_name = #{quotaTypeName},
+            </if>
+            <if test="quotaCategory != null">
+                quota_category = #{quotaCategory},
+            </if>
+            <if test="description != null">
+                description = #{description},
+            </if>
+            <if test="isActive != null">
+                is_active = #{isActive},
+            </if>
+            updated_at = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM quota_types WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" parameterType="java.lang.Long" resultMap="QuotaTypeResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM quota_types
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectAll" resultMap="QuotaTypeResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM quota_types
+        ORDER BY id DESC
+    </select>
+
+    <select id="selectByName" parameterType="java.lang.String" resultMap="QuotaTypeResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM quota_types
+        WHERE quota_type_name = #{quotaTypeName}
+    </select>
+</mapper>

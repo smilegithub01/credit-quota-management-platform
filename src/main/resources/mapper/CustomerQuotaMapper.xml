@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bank.creditquota.mapper.CustomerQuotaMapper">
+    <resultMap id="CustomerQuotaResultMap" type="com.bank.creditquota.entity.CustomerQuota">
+        <id property="id" column="id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="quotaTypeId" column="quota_type_id"/>
+        <result property="totalAmount" column="total_amount"/>
+        <result property="usedAmount" column="used_amount"/>
+        <result property="availableAmount" column="available_amount"/>
+        <result property="frozenAmount" column="frozen_amount"/>
+        <result property="status" column="status"/>
+        <result property="quotaLevel" column="quota_level"/>
+        <result property="parentQuotaId" column="parent_quota_id"/>
+        <result property="effectiveDate" column="effective_date"/>
+        <result property="expireDate" column="expire_date"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, customer_id, quota_type_id, total_amount, used_amount, available_amount, frozen_amount, 
+        status, quota_level, parent_quota_id, effective_date, expire_date, created_at, updated_at
+    </sql>
+
+    <insert id="insert" parameterType="com.bank.creditquota.entity.CustomerQuota" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO customer_quotas (
+            customer_id, quota_type_id, total_amount, used_amount, available_amount, 
+            frozen_amount, status, quota_level, parent_quota_id, effective_date, expire_date, created_at, updated_at
+        ) VALUES (
+            #{customerId}, #{quotaTypeId}, #{totalAmount}, #{usedAmount}, #{availableAmount},
+            #{frozenAmount}, #{status}, #{quotaLevel}, #{parentQuotaId}, #{effectiveDate}, #{expireDate}, NOW(), NOW()
+        )
+    </insert>
+
+    <update id="updateById" parameterType="com.bank.creditquota.entity.CustomerQuota">
+        UPDATE customer_quotas
+        <set>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="quotaTypeId != null">
+                quota_type_id = #{quotaTypeId},
+            </if>
+            <if test="totalAmount != null">
+                total_amount = #{totalAmount},
+            </if>
+            <if test="usedAmount != null">
+                used_amount = #{usedAmount},
+            </if>
+            <if test="availableAmount != null">
+                available_amount = #{availableAmount},
+            </if>
+            <if test="frozenAmount != null">
+                frozen_amount = #{frozenAmount},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="quotaLevel != null">
+                quota_level = #{quotaLevel},
+            </if>
+            <if test="parentQuotaId != null">
+                parent_quota_id = #{parentQuotaId},
+            </if>
+            <if test="effectiveDate != null">
+                effective_date = #{effectiveDate},
+            </if>
+            <if test="expireDate != null">
+                expire_date = #{expireDate},
+            </if>
+            updated_at = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateAvailableAmount">
+        UPDATE customer_quotas 
+        SET available_amount = available_amount + #{amount}, 
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateUsedAmount">
+        UPDATE customer_quotas 
+        SET used_amount = used_amount + #{amount}, 
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE customer_quotas 
+        SET status = #{status}, 
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM customer_quotas WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" parameterType="java.lang.Long" resultMap="CustomerQuotaResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM customer_quotas
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectAll" resultMap="CustomerQuotaResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM customer_quotas
+        ORDER BY id DESC
+    </select>
+
+    <select id="selectByCustomerId" parameterType="java.lang.String" resultMap="CustomerQuotaResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM customer_quotas
+        WHERE customer_id = #{customerId}
+        ORDER BY id DESC
+    </select>
+
+    <select id="selectByQuotaTypeId" parameterType="java.lang.Long" resultMap="CustomerQuotaResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM customer_quotas
+        WHERE quota_type_id = #{quotaTypeId}
+        ORDER BY id DESC
+    </select>
+
+    <select id="selectByCustomerIdAndQuotaType" resultMap="CustomerQuotaResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM customer_quotas
+        WHERE customer_id = #{customerId} AND quota_type_id = #{quotaTypeId}
+    </select>
+</mapper>
