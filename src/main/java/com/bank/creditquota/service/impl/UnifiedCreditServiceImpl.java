@@ -256,6 +256,20 @@ public class UnifiedCreditServiceImpl implements UnifiedCreditService {
 
             creditQuotaMapper.updateById(creditQuota);
 
+            // 记录额度使用明细
+            QuotaUsageDetail quotaUsageDetail = new QuotaUsageDetail();
+            quotaUsageDetail.setQuotaId(creditQuota.getQuotaId());
+            quotaUsageDetail.setCustomerId(creditQuota.getCustomerId());
+            quotaUsageDetail.setTransactionType("PRE_OCCUPY");
+            quotaUsageDetail.setTransactionAmount(request.getAmount());
+            quotaUsageDetail.setBeforeBalance(creditQuota.getAvailableQuota().add(request.getAmount()));
+            quotaUsageDetail.setAfterBalance(newAvailableQuota);
+            quotaUsageDetail.setBusinessType("CREDIT");
+            quotaUsageDetail.setOperator(request.getReferenceId());
+            quotaUsageDetail.setRemark("额度预占");
+            quotaUsageDetail.setCreatedBy(request.getReferenceId());
+            recordQuotaUsageDetail(quotaUsageDetail);
+
             response.setCustomerId(creditQuota.getCustomerId());
             response.setQuotaType(creditQuota.getQuotaType());
             response.setTotalAmount(creditQuota.getTotalQuota());
@@ -311,6 +325,20 @@ public class UnifiedCreditServiceImpl implements UnifiedCreditService {
             creditQuota.setUpdatedTime(LocalDateTime.now());
 
             creditQuotaMapper.updateById(creditQuota);
+
+            // 记录额度使用明细
+            QuotaUsageDetail quotaUsageDetail = new QuotaUsageDetail();
+            quotaUsageDetail.setQuotaId(creditQuota.getQuotaId());
+            quotaUsageDetail.setCustomerId(creditQuota.getCustomerId());
+            quotaUsageDetail.setTransactionType("CANCEL_PRE_OCCUPY");
+            quotaUsageDetail.setTransactionAmount(request.getAmount());
+            quotaUsageDetail.setBeforeBalance(creditQuota.getAvailableQuota().subtract(request.getAmount()));
+            quotaUsageDetail.setAfterBalance(newAvailableQuota);
+            quotaUsageDetail.setBusinessType("CREDIT");
+            quotaUsageDetail.setOperator(request.getReferenceId());
+            quotaUsageDetail.setRemark("取消额度预占");
+            quotaUsageDetail.setCreatedBy(request.getReferenceId());
+            recordQuotaUsageDetail(quotaUsageDetail);
 
             response.setCustomerId(creditQuota.getCustomerId());
             response.setQuotaType(creditQuota.getQuotaType());
@@ -642,6 +670,20 @@ public class UnifiedCreditServiceImpl implements UnifiedCreditService {
 
             creditQuotaMapper.updateById(creditQuota);
 
+            // 记录额度使用明细
+            QuotaUsageDetail quotaUsageDetail = new QuotaUsageDetail();
+            quotaUsageDetail.setQuotaId(creditQuota.getQuotaId());
+            quotaUsageDetail.setCustomerId(creditQuota.getCustomerId());
+            quotaUsageDetail.setTransactionType("OCCUPY");
+            quotaUsageDetail.setTransactionAmount(request.getAmount());
+            quotaUsageDetail.setBeforeBalance(creditQuota.getAvailableQuota().add(request.getAmount()));
+            quotaUsageDetail.setAfterBalance(newAvailableQuota);
+            quotaUsageDetail.setBusinessType("CREDIT");
+            quotaUsageDetail.setOperator(request.getReferenceId());
+            quotaUsageDetail.setRemark("额度占用");
+            quotaUsageDetail.setCreatedBy(request.getReferenceId());
+            recordQuotaUsageDetail(quotaUsageDetail);
+
             response.setCustomerId(creditQuota.getCustomerId());
             response.setQuotaType(creditQuota.getQuotaType());
             response.setTotalAmount(creditQuota.getTotalQuota());
@@ -696,6 +738,20 @@ public class UnifiedCreditServiceImpl implements UnifiedCreditService {
             creditQuota.setUpdatedTime(LocalDateTime.now());
 
             creditQuotaMapper.updateById(creditQuota);
+
+            // 记录额度使用明细
+            QuotaUsageDetail quotaUsageDetail = new QuotaUsageDetail();
+            quotaUsageDetail.setQuotaId(creditQuota.getQuotaId());
+            quotaUsageDetail.setCustomerId(creditQuota.getCustomerId());
+            quotaUsageDetail.setTransactionType("RELEASE");
+            quotaUsageDetail.setTransactionAmount(request.getAmount());
+            quotaUsageDetail.setBeforeBalance(creditQuota.getAvailableQuota().subtract(request.getAmount()));
+            quotaUsageDetail.setAfterBalance(newAvailableQuota);
+            quotaUsageDetail.setBusinessType("CREDIT");
+            quotaUsageDetail.setOperator(request.getReferenceId());
+            quotaUsageDetail.setRemark("额度释放");
+            quotaUsageDetail.setCreatedBy(request.getReferenceId());
+            recordQuotaUsageDetail(quotaUsageDetail);
 
             response.setCustomerId(creditQuota.getCustomerId());
             response.setQuotaType(creditQuota.getQuotaType());
@@ -753,6 +809,20 @@ public class UnifiedCreditServiceImpl implements UnifiedCreditService {
 
             creditQuotaMapper.updateById(creditQuota);
 
+            // 记录额度使用明细
+            QuotaUsageDetail quotaUsageDetail = new QuotaUsageDetail();
+            quotaUsageDetail.setQuotaId(creditQuota.getQuotaId());
+            quotaUsageDetail.setCustomerId(creditQuota.getCustomerId());
+            quotaUsageDetail.setTransactionType("FREEZE");
+            quotaUsageDetail.setTransactionAmount(request.getAmount());
+            quotaUsageDetail.setBeforeBalance(creditQuota.getAvailableQuota().add(request.getAmount())); // 冻结前的可用额度
+            quotaUsageDetail.setAfterBalance(newAvailableQuota);
+            quotaUsageDetail.setBusinessType("CREDIT");
+            quotaUsageDetail.setOperator(request.getReferenceId());
+            quotaUsageDetail.setRemark("额度冻结");
+            quotaUsageDetail.setCreatedBy(request.getReferenceId());
+            recordQuotaUsageDetail(quotaUsageDetail);
+
             response.setCustomerId(creditQuota.getCustomerId());
             response.setQuotaType(creditQuota.getQuotaType());
             response.setTotalAmount(creditQuota.getTotalQuota());
@@ -808,6 +878,20 @@ public class UnifiedCreditServiceImpl implements UnifiedCreditService {
             creditQuota.setUpdatedTime(LocalDateTime.now());
 
             creditQuotaMapper.updateById(creditQuota);
+
+            // 记录额度使用明细
+            QuotaUsageDetail quotaUsageDetail = new QuotaUsageDetail();
+            quotaUsageDetail.setQuotaId(creditQuota.getQuotaId());
+            quotaUsageDetail.setCustomerId(creditQuota.getCustomerId());
+            quotaUsageDetail.setTransactionType("UNFREEZE");
+            quotaUsageDetail.setTransactionAmount(request.getAmount());
+            quotaUsageDetail.setBeforeBalance(creditQuota.getAvailableQuota().subtract(request.getAmount())); // 解冻前的可用额度
+            quotaUsageDetail.setAfterBalance(newAvailableQuota);
+            quotaUsageDetail.setBusinessType("CREDIT");
+            quotaUsageDetail.setOperator(request.getReferenceId());
+            quotaUsageDetail.setRemark("额度解冻");
+            quotaUsageDetail.setCreatedBy(request.getReferenceId());
+            recordQuotaUsageDetail(quotaUsageDetail);
 
             response.setCustomerId(creditQuota.getCustomerId());
             response.setQuotaType(creditQuota.getQuotaType());
@@ -956,6 +1040,20 @@ public class UnifiedCreditServiceImpl implements UnifiedCreditService {
 
             creditQuotaMapper.updateById(creditQuota);
 
+            // 记录额度使用明细
+            QuotaUsageDetail quotaUsageDetail = new QuotaUsageDetail();
+            quotaUsageDetail.setQuotaId(creditQuota.getQuotaId());
+            quotaUsageDetail.setCustomerId(creditQuota.getCustomerId());
+            quotaUsageDetail.setTransactionType("ADJUST");
+            quotaUsageDetail.setTransactionAmount(request.getAmount());
+            quotaUsageDetail.setBeforeBalance(oldAvailable);
+            quotaUsageDetail.setAfterBalance(newAvailable);
+            quotaUsageDetail.setBusinessType("CREDIT");
+            quotaUsageDetail.setOperator(request.getReferenceId());
+            quotaUsageDetail.setRemark("额度调整");
+            quotaUsageDetail.setCreatedBy(request.getReferenceId());
+            recordQuotaUsageDetail(quotaUsageDetail);
+
             response.setCustomerId(creditQuota.getCustomerId());
             response.setQuotaType(creditQuota.getQuotaType());
             response.setTotalAmount(creditQuota.getTotalQuota());
@@ -1013,6 +1111,20 @@ public class UnifiedCreditServiceImpl implements UnifiedCreditService {
 
             creditQuotaMapper.updateById(groupQuota);
 
+            // 记录集团额度使用明细
+            QuotaUsageDetail groupQuotaUsageDetail = new QuotaUsageDetail();
+            groupQuotaUsageDetail.setQuotaId(groupQuota.getQuotaId());
+            groupQuotaUsageDetail.setCustomerId(groupQuota.getCustomerId());
+            groupQuotaUsageDetail.setTransactionType("OCCUPY");
+            groupQuotaUsageDetail.setTransactionAmount(request.getAmount());
+            groupQuotaUsageDetail.setBeforeBalance(groupQuota.getAvailableQuota().add(request.getAmount()));
+            groupQuotaUsageDetail.setAfterBalance(newGroupAvailableQuota);
+            groupQuotaUsageDetail.setBusinessType("GROUP_QUOTA_DISTRIBUTE");
+            groupQuotaUsageDetail.setOperator(request.getReferenceId());
+            groupQuotaUsageDetail.setRemark("集团额度分配-占用集团额度");
+            groupQuotaUsageDetail.setCreatedBy(request.getReferenceId());
+            recordQuotaUsageDetail(groupQuotaUsageDetail);
+
             // 创建子客户额度记录
             CreditQuota subQuota = new CreditQuota();
             subQuota.setCustomerId(request.getReferenceId()); // 分配的目标客户ID
@@ -1033,6 +1145,20 @@ public class UnifiedCreditServiceImpl implements UnifiedCreditService {
             subQuota.setUpdatedTime(LocalDateTime.now());
 
             creditQuotaMapper.insert(subQuota);
+
+            // 记录子客户额度使用明细
+            QuotaUsageDetail subQuotaUsageDetail = new QuotaUsageDetail();
+            subQuotaUsageDetail.setQuotaId(subQuota.getQuotaId());
+            subQuotaUsageDetail.setCustomerId(subQuota.getCustomerId());
+            subQuotaUsageDetail.setTransactionType("OCCUPY");
+            subQuotaUsageDetail.setTransactionAmount(BigDecimal.ZERO); // 初始分配不占用额度
+            subQuotaUsageDetail.setBeforeBalance(subQuota.getAvailableQuota());
+            subQuotaUsageDetail.setAfterBalance(subQuota.getAvailableQuota());
+            subQuotaUsageDetail.setBusinessType("GROUP_QUOTA_DISTRIBUTE");
+            subQuotaUsageDetail.setOperator(request.getReferenceId());
+            subQuotaUsageDetail.setRemark("集团额度分配-子客户额度创建");
+            subQuotaUsageDetail.setCreatedBy(request.getReferenceId());
+            recordQuotaUsageDetail(subQuotaUsageDetail);
 
             response.setCustomerId(request.getCustomerId());
             response.setQuotaType(request.getQuotaType());
