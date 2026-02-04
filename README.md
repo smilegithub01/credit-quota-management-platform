@@ -52,6 +52,72 @@
 - **客户关联方管理**（客户关联方信息管理）
 - **客户等级管理**（客户等级分类管理）
 
+## 数据库设计
+
+### 表层级结构
+
+系统采用分层架构设计：
+
+1. **客户层级（Customer Layer）**
+   - t_customer_info - 客户基础信息表
+   - t_group_relationship - 集团客户关系表
+   - t_customer_affiliate - 客户关联方表
+
+2. **额度管理层（Quota Management Layer）**
+   - t_credit_quota - 授信额度表
+   - t_credit_application - 授信申请表
+   - t_usage_application - 用信申请表
+   - t_quota_usage_detail - 额度使用明细表
+
+3. **风险监控层（Risk Monitoring Layer）**
+   - t_risk_monitoring_index - 风险监控指标表
+   - t_risk_warning - 风险预警表
+
+4. **流程管理层（Process Management Layer）**
+   - t_approval_process - 审批流程表
+   - t_approval_node - 审批节点表
+
+5. **系统配置层（System Configuration Layer）**
+   - t_sys_param_config - 系统参数配置表
+
+### 主要外键关系
+
+- t_customer_info ←→ t_group_relationship (parent_customer_id/child_customer_id)
+- t_customer_info ←→ t_customer_affiliate (customer_id/affiliate_id)
+- t_customer_info ←→ t_credit_application (customer_id)
+- t_customer_info ←→ t_credit_quota (customer_id)
+- t_customer_info ←→ t_usage_application (customer_id)
+- t_customer_info ←→ t_quota_usage_detail (customer_id)
+- t_customer_info ←→ t_risk_monitoring_index (customer_id)
+- t_customer_info ←→ t_risk_warning (customer_id)
+- t_credit_quota ←→ t_quota_usage_detail (quota_id)
+- t_credit_quota ←→ t_usage_application (quota_id)
+- t_credit_quota ←→ t_credit_quota (parent_quota_id) - 自关联
+- t_credit_application ←→ t_usage_application (application_id)
+- t_approval_process ←→ t_approval_node (process_id)
+
+### 业务流程关系
+
+```
+客户申请授信 → t_credit_application
+              ↓
+    审批通过 → t_credit_quota (创建额度)
+              ↓
+    客户用信 → t_usage_application
+              ↓
+    占用额度 → t_quota_usage_detail (记录占用明细)
+              ↓
+    风险监控 → t_risk_monitoring_index (持续监控)
+              ↓
+    预警触发 → t_risk_warning (生成预警)
+```
+
+### 性能优化
+
+- 已在关键字段上建立索引
+- 额度使用明细表支持按时间分区
+- 采用Redis分布式锁保证并发安全
+
 ## 技术栈
 
 - Spring Boot 3.2+
@@ -62,7 +128,7 @@
 - Lombok
 - Maven
 
-## 数据库设计
+## 数据库表结构
 
 - **t_customer_info** - 客户信息表
 - **t_group_relationship** - 集团客户关系表
