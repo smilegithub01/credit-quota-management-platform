@@ -2,10 +2,7 @@ package com.bank.creditquota.service;
 
 import com.bank.creditquota.dto.QuotaRequestDTO;
 import com.bank.creditquota.dto.QuotaResponseDTO;
-import com.bank.creditquota.entity.CreditApplication;
-import com.bank.creditquota.entity.CreditQuota;
-import com.bank.creditquota.entity.CustomerInfo;
-import com.bank.creditquota.entity.GroupRelationship;
+import com.bank.creditquota.entity.*;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -52,6 +49,22 @@ public interface UnifiedCreditService {
      */
     List<GroupRelationship> getGroupRelationshipByChild(String childCustomerId);
     
+    // 客户关联方管理相关
+    /**
+     * 新增客户关联方
+     */
+    boolean addCustomerAffiliate(CustomerAffiliate customerAffiliate);
+    
+    /**
+     * 更新客户关联方
+     */
+    boolean updateCustomerAffiliate(CustomerAffiliate customerAffiliate);
+    
+    /**
+     * 查询客户关联方
+     */
+    List<CustomerAffiliate> getCustomerAffiliatesByCustomerId(String customerId);
+    
     // 授信申请相关
     /**
      * 提交授信申请
@@ -72,6 +85,27 @@ public interface UnifiedCreditService {
      * 查询客户授信申请列表
      */
     List<CreditApplication> getCreditApplicationsByCustomer(String customerId);
+    
+    // 用信申请相关
+    /**
+     * 提交用信申请
+     */
+    String submitUsageApplication(UsageApplication usageApplication);
+    
+    /**
+     * 更新用信申请
+     */
+    boolean updateUsageApplication(UsageApplication usageApplication);
+    
+    /**
+     * 查询用信申请
+     */
+    UsageApplication getUsageApplication(String usageId);
+    
+    /**
+     * 查询客户用信申请列表
+     */
+    List<UsageApplication> getUsageApplicationsByCustomer(String customerId);
     
     // 额度管理相关
     /**
@@ -98,6 +132,17 @@ public interface UnifiedCreditService {
      * 查询客户所有额度
      */
     List<CreditQuota> getCreditQuotasByCustomer(String customerId);
+    
+    // 额度使用明细相关
+    /**
+     * 记录额度使用明细
+     */
+    boolean recordQuotaUsageDetail(QuotaUsageDetail quotaUsageDetail);
+    
+    /**
+     * 查询额度使用明细
+     */
+    List<QuotaUsageDetail> getQuotaUsageDetailsByQuotaId(Long quotaId);
     
     // 统一额度管控相关
     /**
@@ -141,6 +186,16 @@ public interface UnifiedCreditService {
     QuotaResponseDTO adjustQuota(QuotaRequestDTO request);
     
     /**
+     * 额度预占（预留）
+     */
+    QuotaResponseDTO preOccupyQuota(QuotaRequestDTO request);
+    
+    /**
+     * 取消预占额度
+     */
+    QuotaResponseDTO cancelPreOccupiedQuota(QuotaRequestDTO request);
+    
+    /**
      * 集团额度分配
      */
     QuotaResponseDTO distributeGroupQuota(QuotaRequestDTO request);
@@ -159,4 +214,72 @@ public interface UnifiedCreditService {
      * 获取集团成员额度汇总
      */
     QuotaResponseDTO getGroupMembersQuota(String groupId);
+    
+    // 风险监控相关
+    /**
+     * 新增风险监控指标
+     */
+    boolean addRiskMonitoringIndex(RiskMonitoringIndex riskMonitoringIndex);
+    
+    /**
+     * 更新风险监控指标
+     */
+    boolean updateRiskMonitoringIndex(RiskMonitoringIndex riskMonitoringIndex);
+    
+    /**
+     * 查询风险监控指标
+     */
+    List<RiskMonitoringIndex> getRiskMonitoringIndicesByCustomerId(String customerId);
+    
+    /**
+     * 检查客户风险指标
+     */
+    boolean checkCustomerRiskIndices(String customerId);
+    
+    // 风险预警相关
+    /**
+     * 新增风险预警
+     */
+    boolean addRiskWarning(RiskWarning riskWarning);
+    
+    /**
+     * 更新风险预警
+     */
+    boolean updateRiskWarning(RiskWarning riskWarning);
+    
+    /**
+     * 查询风险预警
+     */
+    List<RiskWarning> getRiskWarningsByCustomerId(String customerId);
+    
+    /**
+     * 处理风险预警
+     */
+    boolean handleRiskWarning(Long warningId, String handler, String handleResult);
+    
+    // 审批流程相关
+    /**
+     * 启动审批流程
+     */
+    String startApprovalProcess(ApprovalProcess approvalProcess);
+    
+    /**
+     * 更新审批流程
+     */
+    boolean updateApprovalProcess(ApprovalProcess approvalProcess);
+    
+    /**
+     * 查询审批流程
+     */
+    ApprovalProcess getApprovalProcess(String processId);
+    
+    /**
+     * 完成审批节点
+     */
+    boolean completeApprovalNode(ApprovalNode approvalNode);
+    
+    /**
+     * 查询审批节点
+     */
+    List<ApprovalNode> getApprovalNodesByProcessId(String processId);
 }

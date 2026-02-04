@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bank.creditquota.mapper.RiskMonitoringIndexMapper">
+    <resultMap id="RiskMonitoringIndexResultMap" type="com.bank.creditquota.entity.RiskMonitoringIndex">
+        <id property="indexId" column="index_id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="indexType" column="index_type"/>
+        <result property="indexCode" column="index_code"/>
+        <result property="indexName" column="index_name"/>
+        <result property="indexValue" column="index_value"/>
+        <result property="indexUnit" column="index_unit"/>
+        <result property="thresholdValue" column="threshold_value"/>
+        <result property="riskLevel" column="risk_level"/>
+        <result property="calcDate" column="calc_date"/>
+        <result property="calcMethod" column="calc_method"/>
+        <result property="dataSource" column="data_source"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdTime" column="created_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        index_id, customer_id, index_type, index_code, index_name, index_value,
+        index_unit, threshold_value, risk_level, calc_date, calc_method, data_source,
+        created_by, created_time
+    </sql>
+
+    <insert id="insert" parameterType="com.bank.creditquota.entity.RiskMonitoringIndex">
+        INSERT INTO t_risk_monitoring_index (
+            customer_id, index_type, index_code, index_name, index_value,
+            index_unit, threshold_value, risk_level, calc_date, calc_method,
+            data_source, created_by
+        ) VALUES (
+            #{customerId}, #{indexType}, #{indexCode}, #{indexName}, #{indexValue},
+            #{indexUnit}, #{thresholdValue}, #{riskLevel}, #{calcDate}, #{calcMethod},
+            #{dataSource}, #{createdBy}
+        )
+    </insert>
+
+    <update id="updateById" parameterType="com.bank.creditquota.entity.RiskMonitoringIndex">
+        UPDATE t_risk_monitoring_index
+        <set>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="indexType != null">
+                index_type = #{indexType},
+            </if>
+            <if test="indexCode != null">
+                index_code = #{indexCode},
+            </if>
+            <if test="indexName != null">
+                index_name = #{indexName},
+            </if>
+            <if test="indexValue != null">
+                index_value = #{indexValue},
+            </if>
+            <if test="indexUnit != null">
+                index_unit = #{indexUnit},
+            </if>
+            <if test="thresholdValue != null">
+                threshold_value = #{thresholdValue},
+            </if>
+            <if test="riskLevel != null">
+                risk_level = #{riskLevel},
+            </if>
+            <if test="calcDate != null">
+                calc_date = #{calcDate},
+            </if>
+            <if test="calcMethod != null">
+                calc_method = #{calcMethod},
+            </if>
+            <if test="dataSource != null">
+                data_source = #{dataSource},
+            </if>
+            <if test="createdBy != null">
+                created_by = #{createdBy},
+            </if>
+            created_time = NOW()
+        </set>
+        WHERE index_id = #{indexId}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM t_risk_monitoring_index WHERE index_id = #{indexId}
+    </delete>
+
+    <select id="selectById" parameterType="java.lang.Long" resultMap="RiskMonitoringIndexResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_risk_monitoring_index
+        WHERE index_id = #{indexId}
+    </select>
+
+    <select id="selectAll" resultMap="RiskMonitoringIndexResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_risk_monitoring_index
+        ORDER BY calc_date DESC
+    </select>
+
+    <select id="selectByCustomerId" parameterType="java.lang.String" resultMap="RiskMonitoringIndexResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_risk_monitoring_index
+        WHERE customer_id = #{customerId}
+        ORDER BY calc_date DESC
+    </select>
+
+    <select id="selectByIndexType" parameterType="java.lang.String" resultMap="RiskMonitoringIndexResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_risk_monitoring_index
+        WHERE index_type = #{indexType}
+        ORDER BY calc_date DESC
+    </select>
+
+    <select id="selectByIndexCode" parameterType="java.lang.String" resultMap="RiskMonitoringIndexResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_risk_monitoring_index
+        WHERE index_code = #{indexCode}
+        ORDER BY calc_date DESC
+    </select>
+
+    <select id="selectByRiskLevel" parameterType="java.lang.String" resultMap="RiskMonitoringIndexResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_risk_monitoring_index
+        WHERE risk_level = #{riskLevel}
+        ORDER BY calc_date DESC
+    </select>
+</mapper>

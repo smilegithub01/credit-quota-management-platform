@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bank.creditquota.mapper.ApprovalNodeMapper">
+    <resultMap id="ApprovalNodeResultMap" type="com.bank.creditquota.entity.ApprovalNode">
+        <id property="nodeId" column="node_id"/>
+        <result property="processId" column="process_id"/>
+        <result property="nodeName" column="node_name"/>
+        <result property="nodeType" column="node_type"/>
+        <result property="assigneeType" column="assignee_type"/>
+        <result property="assigneeId" column="assignee_id"/>
+        <result property="assigneeName" column="assignee_name"/>
+        <result property="nodeStatus" column="node_status"/>
+        <result property="approveResult" column="approve_result"/>
+        <result property="approveOpinion" column="approve_opinion"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="durationMinutes" column="duration_minutes"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="updatedTime" column="updated_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        node_id, process_id, node_name, node_type, assignee_type, assignee_id,
+        assignee_name, node_status, approve_result, approve_opinion, start_time,
+        end_time, duration_minutes, created_time, updated_time
+    </sql>
+
+    <insert id="insert" parameterType="com.bank.creditquota.entity.ApprovalNode">
+        INSERT INTO t_approval_node (
+            process_id, node_name, node_type, assignee_type, assignee_id,
+            assignee_name, node_status, approve_result, approve_opinion,
+            start_time, end_time, duration_minutes
+        ) VALUES (
+            #{processId}, #{nodeName}, #{nodeType}, #{assigneeType}, #{assigneeId},
+            #{assigneeName}, #{nodeStatus}, #{approveResult}, #{approveOpinion},
+            #{startTime}, #{endTime}, #{durationMinutes}
+        )
+    </insert>
+
+    <update id="updateById" parameterType="com.bank.creditquota.entity.ApprovalNode">
+        UPDATE t_approval_node
+        <set>
+            <if test="processId != null">
+                process_id = #{processId},
+            </if>
+            <if test="nodeName != null">
+                node_name = #{nodeName},
+            </if>
+            <if test="nodeType != null">
+                node_type = #{nodeType},
+            </if>
+            <if test="assigneeType != null">
+                assignee_type = #{assigneeType},
+            </if>
+            <if test="assigneeId != null">
+                assignee_id = #{assigneeId},
+            </if>
+            <if test="assigneeName != null">
+                assignee_name = #{assigneeName},
+            </if>
+            <if test="nodeStatus != null">
+                node_status = #{nodeStatus},
+            </if>
+            <if test="approveResult != null">
+                approve_result = #{approveResult},
+            </if>
+            <if test="approveOpinion != null">
+                approve_opinion = #{approveOpinion},
+            </if>
+            <if test="startTime != null">
+                start_time = #{startTime},
+            </if>
+            <if test="endTime != null">
+                end_time = #{endTime},
+            </if>
+            <if test="durationMinutes != null">
+                duration_minutes = #{durationMinutes},
+            </if>
+            updated_time = NOW()
+        </set>
+        WHERE node_id = #{nodeId}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM t_approval_node WHERE node_id = #{nodeId}
+    </delete>
+
+    <select id="selectById" parameterType="java.lang.Long" resultMap="ApprovalNodeResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_approval_node
+        WHERE node_id = #{nodeId}
+    </select>
+
+    <select id="selectAll" resultMap="ApprovalNodeResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_approval_node
+        ORDER BY created_time DESC
+    </select>
+
+    <select id="selectByProcessId" parameterType="java.lang.String" resultMap="ApprovalNodeResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_approval_node
+        WHERE process_id = #{processId}
+        ORDER BY created_time DESC
+    </select>
+
+    <select id="selectByNodeStatus" parameterType="java.lang.String" resultMap="ApprovalNodeResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_approval_node
+        WHERE node_status = #{nodeStatus}
+        ORDER BY created_time DESC
+    </select>
+
+    <select id="selectByAssigneeId" parameterType="java.lang.String" resultMap="ApprovalNodeResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_approval_node
+        WHERE assignee_id = #{assigneeId}
+        ORDER BY created_time DESC
+    </select>
+
+    <select id="selectByApproveResult" parameterType="java.lang.String" resultMap="ApprovalNodeResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_approval_node
+        WHERE approve_result = #{approveResult}
+        ORDER BY created_time DESC
+    </select>
+</mapper>

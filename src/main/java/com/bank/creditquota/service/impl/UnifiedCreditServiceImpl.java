@@ -34,6 +34,27 @@ public class UnifiedCreditServiceImpl implements UnifiedCreditService {
     private CreditApplicationMapper creditApplicationMapper;
 
     @Autowired
+    private QuotaUsageDetailMapper quotaUsageDetailMapper;
+
+    @Autowired
+    private RiskMonitoringIndexMapper riskMonitoringIndexMapper;
+
+    @Autowired
+    private RiskWarningMapper riskWarningMapper;
+
+    @Autowired
+    private ApprovalProcessMapper approvalProcessMapper;
+
+    @Autowired
+    private ApprovalNodeMapper approvalNodeMapper;
+
+    @Autowired
+    private UsageApplicationMapper usageApplicationMapper;
+
+    @Autowired
+    private CustomerAffiliateMapper customerAffiliateMapper;
+
+    @Autowired
     private RedissonClient redissonClient;
 
     // 客户管理相关实现
@@ -105,6 +126,365 @@ public class UnifiedCreditServiceImpl implements UnifiedCreditService {
     @Override
     public List<GroupRelationship> getGroupRelationshipByChild(String childCustomerId) {
         return groupRelationshipMapper.selectByChildCustomerId(childCustomerId);
+    }
+
+    // 客户关联方管理相关实现
+    @Override
+    public boolean addCustomerAffiliate(CustomerAffiliate customerAffiliate) {
+        try {
+            customerAffiliate.setCreatedTime(LocalDateTime.now());
+            customerAffiliateMapper.insert(customerAffiliate);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean updateCustomerAffiliate(CustomerAffiliate customerAffiliate) {
+        try {
+            customerAffiliate.setUpdatedTime(LocalDateTime.now());
+            customerAffiliateMapper.updateById(customerAffiliate);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public List<CustomerAffiliate> getCustomerAffiliatesByCustomerId(String customerId) {
+        return customerAffiliateMapper.selectByCustomerId(customerId);
+    }
+
+    // 用信申请相关实现
+    @Override
+    public String submitUsageApplication(UsageApplication usageApplication) {
+        try {
+            String usageId = "USA" + System.currentTimeMillis() + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+            usageApplication.setUsageId(usageId);
+            usageApplication.setCreatedTime(LocalDateTime.now());
+            usageApplicationMapper.insert(usageApplication);
+            return usageId;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public boolean updateUsageApplication(UsageApplication usageApplication) {
+        try {
+            usageApplication.setUpdatedTime(LocalDateTime.now());
+            usageApplicationMapper.updateById(usageApplication);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public UsageApplication getUsageApplication(String usageId) {
+        return usageApplicationMapper.selectById(usageId);
+    }
+
+    @Override
+    public List<UsageApplication> getUsageApplicationsByCustomer(String customerId) {
+        return usageApplicationMapper.selectByCustomerId(customerId);
+    }
+
+    // 额度使用明细相关实现
+    @Override
+    public boolean recordQuotaUsageDetail(QuotaUsageDetail quotaUsageDetail) {
+        try {
+            quotaUsageDetail.setCreatedTime(LocalDateTime.now());
+            quotaUsageDetailMapper.insert(quotaUsageDetail);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public List<QuotaUsageDetail> getQuotaUsageDetailsByQuotaId(Long quotaId) {
+        return quotaUsageDetailMapper.selectByQuotaId(quotaId);
+    }
+
+    // 额度预占（预留）功能
+    @Override
+    public QuotaResponseDTO preOccupyQuota(QuotaRequestDTO request) {
+        RLock lock = null;
+        QuotaResponseDTO response = new QuotaResponseDTO();
+        try {
+            String lockKey = "quota_preoccupy_" + request.getCustomerId() + "_" + request.getQuotaType();
+            lock = redissonClient.getLock(lockKey);
+            lock.lock(30, TimeUnit.SECONDS);
+
+            CreditQuota creditQuota = creditQuotaMapper.selectByCustomerIdAndQuotaType(
+                request.getCustomerId(), request.getQuotaType());
+
+            if (creditQuota == null) {
+                response.setSuccess(false);
+                response.setMessage("客户额度记录不存在");
+                return response;
+            }
+
+            // 检查额度状态
+            if (!"ACTIVE".equals(creditQuota.getQuotaStatus())) {
+                response.setSuccess(false);
+                response.setMessage("额度未激活");
+                return response;
+            }
+
+            // 检查可用额度
+            if (creditQuota.getAvailableQuota().compareTo(request.getAmount()) < 0) {
+                response.setSuccess(false);
+                response.setMessage("额度不足");
+                return response;
+            }
+
+            // 更新额度（仅更新可用额度，不更新已用额度）
+            BigDecimal newAvailableQuota = creditQuota.getAvailableQuota().subtract(request.getAmount());
+            BigDecimal newFrozenQuota = creditQuota.getFrozenQuota().add(request.getAmount());
+
+            creditQuota.setAvailableQuota(newAvailableQuota);
+            creditQuota.setFrozenQuota(newFrozenQuota);
+            creditQuota.setUpdatedTime(LocalDateTime.now());
+
+            creditQuotaMapper.updateById(creditQuota);
+
+            response.setCustomerId(creditQuota.getCustomerId());
+            response.setQuotaType(creditQuota.getQuotaType());
+            response.setTotalAmount(creditQuota.getTotalQuota());
+            response.setUsedAmount(creditQuota.getUsedQuota());
+            response.setAvailableAmount(creditQuota.getAvailableQuota());
+            response.setFrozenAmount(creditQuota.getFrozenQuota());
+            response.setStatus(creditQuota.getQuotaStatus());
+            response.setSuccess(true);
+            response.setMessage("额度预占成功");
+
+        } catch (Exception e) {
+            response.setSuccess(false);
+            response.setMessage("额度预占失败: " + e.getMessage());
+        } finally {
+            if (lock != null && lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+        }
+        return response;
+    }
+
+    @Override
+    public QuotaResponseDTO cancelPreOccupiedQuota(QuotaRequestDTO request) {
+        RLock lock = null;
+        QuotaResponseDTO response = new QuotaResponseDTO();
+        try {
+            String lockKey = "quota_cancel_preoccupy_" + request.getCustomerId() + "_" + request.getQuotaType();
+            lock = redissonClient.getLock(lockKey);
+            lock.lock(30, TimeUnit.SECONDS);
+
+            CreditQuota creditQuota = creditQuotaMapper.selectByCustomerIdAndQuotaType(
+                request.getCustomerId(), request.getQuotaType());
+
+            if (creditQuota == null) {
+                response.setSuccess(false);
+                response.setMessage("客户额度记录不存在");
+                return response;
+            }
+
+            // 检查冻结额度是否足够解冻
+            if (creditQuota.getFrozenQuota().compareTo(request.getAmount()) < 0) {
+                response.setSuccess(false);
+                response.setMessage("冻结额度不足，无法取消预占");
+                return response;
+            }
+
+            // 更新额度（将冻结额度转回可用额度）
+            BigDecimal newAvailableQuota = creditQuota.getAvailableQuota().add(request.getAmount());
+            BigDecimal newFrozenQuota = creditQuota.getFrozenQuota().subtract(request.getAmount());
+
+            creditQuota.setAvailableQuota(newAvailableQuota);
+            creditQuota.setFrozenQuota(newFrozenQuota);
+            creditQuota.setUpdatedTime(LocalDateTime.now());
+
+            creditQuotaMapper.updateById(creditQuota);
+
+            response.setCustomerId(creditQuota.getCustomerId());
+            response.setQuotaType(creditQuota.getQuotaType());
+            response.setTotalAmount(creditQuota.getTotalQuota());
+            response.setUsedAmount(creditQuota.getUsedQuota());
+            response.setAvailableAmount(creditQuota.getAvailableQuota());
+            response.setFrozenAmount(creditQuota.getFrozenQuota());
+            response.setStatus(creditQuota.getQuotaStatus());
+            response.setSuccess(true);
+            response.setMessage("取消额度预占成功");
+
+        } catch (Exception e) {
+            response.setSuccess(false);
+            response.setMessage("取消额度预占失败: " + e.getMessage());
+        } finally {
+            if (lock != null && lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+        }
+        return response;
+    }
+
+    // 风险监控相关实现
+    @Override
+    public boolean addRiskMonitoringIndex(RiskMonitoringIndex riskMonitoringIndex) {
+        try {
+            riskMonitoringIndex.setCreatedTime(LocalDateTime.now());
+            riskMonitoringIndexMapper.insert(riskMonitoringIndex);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean updateRiskMonitoringIndex(RiskMonitoringIndex riskMonitoringIndex) {
+        try {
+            riskMonitoringIndexMapper.updateById(riskMonitoringIndex);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public List<RiskMonitoringIndex> getRiskMonitoringIndicesByCustomerId(String customerId) {
+        return riskMonitoringIndexMapper.selectByCustomerId(customerId);
+    }
+
+    @Override
+    public boolean checkCustomerRiskIndices(String customerId) {
+        List<RiskMonitoringIndex> indices = riskMonitoringIndexMapper.selectByCustomerId(customerId);
+        for (RiskMonitoringIndex index : indices) {
+            if (index.getIndexValue() != null && index.getThresholdValue() != null) {
+                // 根据风险等级判断是否超标
+                if ("HIGH".equals(index.getRiskLevel()) || "CRITICAL".equals(index.getRiskLevel())) {
+                    // 如果是高风险或危急风险，返回false表示风险检查未通过
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    // 风险预警相关实现
+    @Override
+    public boolean addRiskWarning(RiskWarning riskWarning) {
+        try {
+            riskWarning.setCreatedTime(LocalDateTime.now());
+            riskWarning.setWarningDate(LocalDateTime.now());
+            riskWarningMapper.insert(riskWarning);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean updateRiskWarning(RiskWarning riskWarning) {
+        try {
+            riskWarning.setUpdatedTime(LocalDateTime.now());
+            riskWarningMapper.updateById(riskWarning);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public List<RiskWarning> getRiskWarningsByCustomerId(String customerId) {
+        return riskWarningMapper.selectByCustomerId(customerId);
+    }
+
+    @Override
+    public boolean handleRiskWarning(Long warningId, String handler, String handleResult) {
+        try {
+            RiskWarning warning = riskWarningMapper.selectById(warningId);
+            if (warning != null) {
+                warning.setHandler(handler);
+                warning.setHandleResult(handleResult);
+                warning.setHandleTime(LocalDateTime.now());
+                warning.setWarningStatus("HANDLED");
+                riskWarningMapper.updateById(warning);
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // 审批流程相关实现
+    @Override
+    public String startApprovalProcess(ApprovalProcess approvalProcess) {
+        try {
+            String processId = "PROC" + System.currentTimeMillis() + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+            approvalProcess.setProcessId(processId);
+            approvalProcess.setStartTime(LocalDateTime.now());
+            approvalProcess.setProcessStatus("RUNNING");
+            approvalProcess.setCreatedTime(LocalDateTime.now());
+            approvalProcessMapper.insert(approvalProcess);
+            return processId;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public boolean updateApprovalProcess(ApprovalProcess approvalProcess) {
+        try {
+            approvalProcess.setUpdatedTime(LocalDateTime.now());
+            approvalProcessMapper.updateById(approvalProcess);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public ApprovalProcess getApprovalProcess(String processId) {
+        return approvalProcessMapper.selectById(processId);
+    }
+
+    @Override
+    public boolean completeApprovalNode(ApprovalNode approvalNode) {
+        try {
+            approvalNode.setEndTime(LocalDateTime.now());
+            approvalNode.setNodeStatus("COMPLETED");
+            approvalNode.setUpdatedTime(LocalDateTime.now());
+            
+            // 计算处理时长（分钟）
+            if (approvalNode.getStartTime() != null) {
+                long duration = java.time.Duration.between(approvalNode.getStartTime(), LocalDateTime.now()).toMinutes();
+                approvalNode.setDurationMinutes((int) duration);
+            }
+            
+            approvalNodeMapper.updateById(approvalNode);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public List<ApprovalNode> getApprovalNodesByProcessId(String processId) {
+        return approvalNodeMapper.selectByProcessId(processId);
     }
 
     // 授信申请相关实现

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bank.creditquota.mapper.QuotaUsageDetailMapper">
+    <resultMap id="QuotaUsageDetailResultMap" type="com.bank.creditquota.entity.QuotaUsageDetail">
+        <id property="detailId" column="detail_id"/>
+        <result property="quotaId" column="quota_id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="usageId" column="usage_id"/>
+        <result property="transactionType" column="transaction_type"/>
+        <result property="transactionAmount" column="transaction_amount"/>
+        <result property="beforeBalance" column="before_balance"/>
+        <result property="afterBalance" column="after_balance"/>
+        <result property="businessType" column="business_type"/>
+        <result property="businessRefNo" column="business_ref_no"/>
+        <result property="operator" column="operator"/>
+        <result property="transactionTime" column="transaction_time"/>
+        <result property="remark" column="remark"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="updatedBy" column="updated_by"/>
+        <result property="updatedTime" column="updated_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        detail_id, quota_id, customer_id, usage_id, transaction_type, transaction_amount,
+        before_balance, after_balance, business_type, business_ref_no, operator,
+        transaction_time, remark, created_by, created_time, updated_by, updated_time
+    </sql>
+
+    <insert id="insert" parameterType="com.bank.creditquota.entity.QuotaUsageDetail">
+        INSERT INTO t_quota_usage_detail (
+            quota_id, customer_id, usage_id, transaction_type, transaction_amount,
+            before_balance, after_balance, business_type, business_ref_no, operator,
+            remark, created_by, updated_by
+        ) VALUES (
+            #{quotaId}, #{customerId}, #{usageId}, #{transactionType}, #{transactionAmount},
+            #{beforeBalance}, #{afterBalance}, #{businessType}, #{businessRefNo}, #{operator},
+            #{remark}, #{createdBy}, #{updatedBy}
+        )
+    </insert>
+
+    <update id="updateById" parameterType="com.bank.creditquota.entity.QuotaUsageDetail">
+        UPDATE t_quota_usage_detail
+        <set>
+            <if test="quotaId != null">
+                quota_id = #{quotaId},
+            </if>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="usageId != null">
+                usage_id = #{usageId},
+            </if>
+            <if test="transactionType != null">
+                transaction_type = #{transactionType},
+            </if>
+            <if test="transactionAmount != null">
+                transaction_amount = #{transactionAmount},
+            </if>
+            <if test="beforeBalance != null">
+                before_balance = #{beforeBalance},
+            </if>
+            <if test="afterBalance != null">
+                after_balance = #{afterBalance},
+            </if>
+            <if test="businessType != null">
+                business_type = #{businessType},
+            </if>
+            <if test="businessRefNo != null">
+                business_ref_no = #{businessRefNo},
+            </if>
+            <if test="operator != null">
+                operator = #{operator},
+            </if>
+            <if test="remark != null">
+                remark = #{remark},
+            </if>
+            <if test="updatedBy != null">
+                updated_by = #{updatedBy},
+            </if>
+            updated_time = NOW()
+        </set>
+        WHERE detail_id = #{detailId}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM t_quota_usage_detail WHERE detail_id = #{detailId}
+    </delete>
+
+    <select id="selectById" parameterType="java.lang.Long" resultMap="QuotaUsageDetailResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_quota_usage_detail
+        WHERE detail_id = #{detailId}
+    </select>
+
+    <select id="selectAll" resultMap="QuotaUsageDetailResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_quota_usage_detail
+        ORDER BY transaction_time DESC
+    </select>
+
+    <select id="selectByQuotaId" parameterType="java.lang.Long" resultMap="QuotaUsageDetailResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_quota_usage_detail
+        WHERE quota_id = #{quotaId}
+        ORDER BY transaction_time DESC
+    </select>
+
+    <select id="selectByCustomerId" parameterType="java.lang.String" resultMap="QuotaUsageDetailResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_quota_usage_detail
+        WHERE customer_id = #{customerId}
+        ORDER BY transaction_time DESC
+    </select>
+
+    <select id="selectByUsageId" parameterType="java.lang.String" resultMap="QuotaUsageDetailResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_quota_usage_detail
+        WHERE usage_id = #{usageId}
+        ORDER BY transaction_time DESC
+    </select>
+
+    <select id="selectByTransactionType" parameterType="java.lang.String" resultMap="QuotaUsageDetailResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_quota_usage_detail
+        WHERE transaction_type = #{transactionType}
+        ORDER BY transaction_time DESC
+    </select>
+</mapper>

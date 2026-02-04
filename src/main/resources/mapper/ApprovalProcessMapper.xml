@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bank.creditquota.mapper.ApprovalProcessMapper">
+    <resultMap id="ApprovalProcessResultMap" type="com.bank.creditquota.entity.ApprovalProcess">
+        <id property="processId" column="process_id"/>
+        <result property="businessType" column="business_type"/>
+        <result property="businessId" column="business_id"/>
+        <result property="processDefinitionId" column="process_definition_id"/>
+        <result property="processName" column="process_name"/>
+        <result property="currentNode" column="current_node"/>
+        <result property="currentAssignee" column="current_assignee"/>
+        <result property="processStatus" column="process_status"/>
+        <result property="priority" column="priority"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="updatedBy" column="updated_by"/>
+        <result property="updatedTime" column="updated_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        process_id, business_type, business_id, process_definition_id, process_name,
+        current_node, current_assignee, process_status, priority, start_time,
+        end_time, created_by, created_time, updated_by, updated_time
+    </sql>
+
+    <insert id="insert" parameterType="com.bank.creditquota.entity.ApprovalProcess">
+        INSERT INTO t_approval_process (
+            business_type, business_id, process_definition_id, process_name,
+            current_node, current_assignee, process_status, priority, created_by, updated_by
+        ) VALUES (
+            #{businessType}, #{businessId}, #{processDefinitionId}, #{processName},
+            #{currentNode}, #{currentAssignee}, #{processStatus}, #{priority}, #{createdBy}, #{updatedBy}
+        )
+    </insert>
+
+    <update id="updateById" parameterType="com.bank.creditquota.entity.ApprovalProcess">
+        UPDATE t_approval_process
+        <set>
+            <if test="businessType != null">
+                business_type = #{businessType},
+            </if>
+            <if test="businessId != null">
+                business_id = #{businessId},
+            </if>
+            <if test="processDefinitionId != null">
+                process_definition_id = #{processDefinitionId},
+            </if>
+            <if test="processName != null">
+                process_name = #{processName},
+            </if>
+            <if test="currentNode != null">
+                current_node = #{currentNode},
+            </if>
+            <if test="currentAssignee != null">
+                current_assignee = #{currentAssignee},
+            </if>
+            <if test="processStatus != null">
+                process_status = #{processStatus},
+            </if>
+            <if test="priority != null">
+                priority = #{priority},
+            </if>
+            <if test="startTime != null">
+                start_time = #{startTime},
+            </if>
+            <if test="endTime != null">
+                end_time = #{endTime},
+            </if>
+            <if test="updatedBy != null">
+                updated_by = #{updatedBy},
+            </if>
+            updated_time = NOW()
+        </set>
+        WHERE process_id = #{processId}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.String">
+        DELETE FROM t_approval_process WHERE process_id = #{processId}
+    </delete>
+
+    <select id="selectById" parameterType="java.lang.String" resultMap="ApprovalProcessResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_approval_process
+        WHERE process_id = #{processId}
+    </select>
+
+    <select id="selectAll" resultMap="ApprovalProcessResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_approval_process
+        ORDER BY created_time DESC
+    </select>
+
+    <select id="selectByBusinessType" parameterType="java.lang.String" resultMap="ApprovalProcessResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_approval_process
+        WHERE business_type = #{businessType}
+        ORDER BY created_time DESC
+    </select>
+
+    <select id="selectByBusinessId" parameterType="java.lang.String" resultMap="ApprovalProcessResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_approval_process
+        WHERE business_id = #{businessId}
+        ORDER BY created_time DESC
+    </select>
+
+    <select id="selectByProcessStatus" parameterType="java.lang.String" resultMap="ApprovalProcessResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_approval_process
+        WHERE process_status = #{processStatus}
+        ORDER BY created_time DESC
+    </select>
+
+    <select id="selectByCurrentAssignee" parameterType="java.lang.String" resultMap="ApprovalProcessResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_approval_process
+        WHERE current_assignee = #{currentAssignee}
+        ORDER BY created_time DESC
+    </select>
+</mapper>

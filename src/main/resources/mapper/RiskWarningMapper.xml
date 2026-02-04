@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bank.creditquota.mapper.RiskWarningMapper">
+    <resultMap id="RiskWarningResultMap" type="com.bank.creditquota.entity.RiskWarning">
+        <id property="warningId" column="warning_id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="warningType" column="warning_type"/>
+        <result property="warningCode" column="warning_code"/>
+        <result property="warningTitle" column="warning_title"/>
+        <result property="warningContent" column="warning_content"/>
+        <result property="riskLevel" column="risk_level"/>
+        <result property="warningStatus" column="warning_status"/>
+        <result property="handler" column="handler"/>
+        <result property="handleTime" column="handle_time"/>
+        <result property="handleResult" column="handle_result"/>
+        <result property="warningDate" column="warning_date"/>
+        <result property="resolveDate" column="resolve_date"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="updatedBy" column="updated_by"/>
+        <result property="updatedTime" column="updated_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        warning_id, customer_id, warning_type, warning_code, warning_title, warning_content,
+        risk_level, warning_status, handler, handle_time, handle_result, warning_date,
+        resolve_date, created_by, created_time, updated_by, updated_time
+    </sql>
+
+    <insert id="insert" parameterType="com.bank.creditquota.entity.RiskWarning">
+        INSERT INTO t_risk_warning (
+            customer_id, warning_type, warning_code, warning_title, warning_content,
+            risk_level, warning_status, handler, handle_result, warning_date,
+            resolve_date, created_by, updated_by
+        ) VALUES (
+            #{customerId}, #{warningType}, #{warningCode}, #{warningTitle}, #{warningContent},
+            #{riskLevel}, #{warningStatus}, #{handler}, #{handleResult}, #{warningDate},
+            #{resolveDate}, #{createdBy}, #{updatedBy}
+        )
+    </insert>
+
+    <update id="updateById" parameterType="com.bank.creditquota.entity.RiskWarning">
+        UPDATE t_risk_warning
+        <set>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="warningType != null">
+                warning_type = #{warningType},
+            </if>
+            <if test="warningCode != null">
+                warning_code = #{warningCode},
+            </if>
+            <if test="warningTitle != null">
+                warning_title = #{warningTitle},
+            </if>
+            <if test="warningContent != null">
+                warning_content = #{warningContent},
+            </if>
+            <if test="riskLevel != null">
+                risk_level = #{riskLevel},
+            </if>
+            <if test="warningStatus != null">
+                warning_status = #{warningStatus},
+            </if>
+            <if test="handler != null">
+                handler = #{handler},
+            </if>
+            <if test="handleTime != null">
+                handle_time = #{handleTime},
+            </if>
+            <if test="handleResult != null">
+                handle_result = #{handleResult},
+            </if>
+            <if test="resolveDate != null">
+                resolve_date = #{resolveDate},
+            </if>
+            <if test="updatedBy != null">
+                updated_by = #{updatedBy},
+            </if>
+            updated_time = NOW()
+        </set>
+        WHERE warning_id = #{warningId}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM t_risk_warning WHERE warning_id = #{warningId}
+    </delete>
+
+    <select id="selectById" parameterType="java.lang.Long" resultMap="RiskWarningResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_risk_warning
+        WHERE warning_id = #{warningId}
+    </select>
+
+    <select id="selectAll" resultMap="RiskWarningResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_risk_warning
+        ORDER BY warning_date DESC
+    </select>
+
+    <select id="selectByCustomerId" parameterType="java.lang.String" resultMap="RiskWarningResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_risk_warning
+        WHERE customer_id = #{customerId}
+        ORDER BY warning_date DESC
+    </select>
+
+    <select id="selectByWarningType" parameterType="java.lang.String" resultMap="RiskWarningResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_risk_warning
+        WHERE warning_type = #{warningType}
+        ORDER BY warning_date DESC
+    </select>
+
+    <select id="selectByWarningStatus" parameterType="java.lang.String" resultMap="RiskWarningResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_risk_warning
+        WHERE warning_status = #{warningStatus}
+        ORDER BY warning_date DESC
+    </select>
+
+    <select id="selectByRiskLevel" parameterType="java.lang.String" resultMap="RiskWarningResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_risk_warning
+        WHERE risk_level = #{riskLevel}
+        ORDER BY warning_date DESC
+    </select>
+</mapper>
