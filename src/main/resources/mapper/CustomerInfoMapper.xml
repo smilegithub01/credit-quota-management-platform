@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bank.creditquota.mapper.CustomerInfoMapper">
+    <resultMap id="CustomerInfoResultMap" type="com.bank.creditquota.entity.CustomerInfo">
+        <id property="customerId" column="customer_id"/>
+        <result property="customerName" column="customer_name"/>
+        <result property="customerType" column="customer_type"/>
+        <result property="customerLevel" column="customer_level"/>
+        <result property="businessLicenseNo" column="business_license_no"/>
+        <result property="organizationCode" column="organization_code"/>
+        <result property="taxRegisterNo" column="tax_register_no"/>
+        <result property="registeredCapital" column="registered_capital"/>
+        <result property="registeredDate" column="registered_date"/>
+        <result property="legalRepresentative" column="legal_representative"/>
+        <result property="businessScope" column="business_scope"/>
+        <result property="industryType" column="industry_type"/>
+        <result property="province" column="province"/>
+        <result property="city" column="city"/>
+        <result property="address" column="address"/>
+        <result property="phone" column="phone"/>
+        <result property="status" column="status"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="updatedBy" column="updated_by"/>
+        <result property="updatedTime" column="updated_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        customer_id, customer_name, customer_type, customer_level, business_license_no, 
+        organization_code, tax_register_no, registered_capital, registered_date, 
+        legal_representative, business_scope, industry_type, province, city, address, 
+        phone, status, created_by, created_time, updated_by, updated_time
+    </sql>
+
+    <insert id="insert" parameterType="com.bank.creditquota.entity.CustomerInfo">
+        INSERT INTO t_customer_info (
+            customer_id, customer_name, customer_type, customer_level, business_license_no,
+            organization_code, tax_register_no, registered_capital, registered_date,
+            legal_representative, business_scope, industry_type, province, city, address,
+            phone, status, created_by, updated_by
+        ) VALUES (
+            #{customerId}, #{customerName}, #{customerType}, #{customerLevel}, #{businessLicenseNo},
+            #{organizationCode}, #{taxRegisterNo}, #{registeredCapital}, #{registeredDate},
+            #{legalRepresentative}, #{businessScope}, #{industryType}, #{province}, #{city}, #{address},
+            #{phone}, #{status}, #{createdBy}, #{updatedBy}
+        )
+    </insert>
+
+    <update id="updateById" parameterType="com.bank.creditquota.entity.CustomerInfo">
+        UPDATE t_customer_info
+        <set>
+            <if test="customerName != null">
+                customer_name = #{customerName},
+            </if>
+            <if test="customerType != null">
+                customer_type = #{customerType},
+            </if>
+            <if test="customerLevel != null">
+                customer_level = #{customerLevel},
+            </if>
+            <if test="businessLicenseNo != null">
+                business_license_no = #{businessLicenseNo},
+            </if>
+            <if test="organizationCode != null">
+                organization_code = #{organizationCode},
+            </if>
+            <if test="taxRegisterNo != null">
+                tax_register_no = #{taxRegisterNo},
+            </if>
+            <if test="registeredCapital != null">
+                registered_capital = #{registeredCapital},
+            </if>
+            <if test="registeredDate != null">
+                registered_date = #{registeredDate},
+            </if>
+            <if test="legalRepresentative != null">
+                legal_representative = #{legalRepresentative},
+            </if>
+            <if test="businessScope != null">
+                business_scope = #{businessScope},
+            </if>
+            <if test="industryType != null">
+                industry_type = #{industryType},
+            </if>
+            <if test="province != null">
+                province = #{province},
+            </if>
+            <if test="city != null">
+                city = #{city},
+            </if>
+            <if test="address != null">
+                address = #{address},
+            </if>
+            <if test="phone != null">
+                phone = #{phone},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="updatedBy != null">
+                updated_by = #{updatedBy},
+            </if>
+            updated_time = NOW()
+        </set>
+        WHERE customer_id = #{customerId}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.String">
+        DELETE FROM t_customer_info WHERE customer_id = #{customerId}
+    </delete>
+
+    <select id="selectById" parameterType="java.lang.String" resultMap="CustomerInfoResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_customer_info
+        WHERE customer_id = #{customerId}
+    </select>
+
+    <select id="selectAll" resultMap="CustomerInfoResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_customer_info
+        ORDER BY created_time DESC
+    </select>
+
+    <select id="selectByCustomerName" parameterType="java.lang.String" resultMap="CustomerInfoResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_customer_info
+        WHERE customer_name LIKE CONCAT('%', #{customerName}, '%')
+        ORDER BY created_time DESC
+    </select>
+
+    <select id="selectByCustomerType" parameterType="java.lang.String" resultMap="CustomerInfoResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_customer_info
+        WHERE customer_type = #{customerType}
+        ORDER BY created_time DESC
+    </select>
+
+    <select id="selectByStatus" parameterType="java.lang.String" resultMap="CustomerInfoResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_customer_info
+        WHERE status = #{status}
+        ORDER BY created_time DESC
+    </select>
+</mapper>

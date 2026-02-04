@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bank.creditquota.mapper.CreditQuotaMapper">
+    <resultMap id="CreditQuotaResultMap" type="com.bank.creditquota.entity.CreditQuota">
+        <id property="quotaId" column="quota_id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="quotaType" column="quota_type"/>
+        <result property="quotaSubtype" column="quota_subtype"/>
+        <result property="totalQuota" column="total_quota"/>
+        <result property="usedQuota" column="used_quota"/>
+        <result property="availableQuota" column="available_quota"/>
+        <result property="frozenQuota" column="frozen_quota"/>
+        <result property="currency" column="currency"/>
+        <result property="quotaLevel" column="quota_level"/>
+        <result property="parentQuotaId" column="parent_quota_id"/>
+        <result property="effectiveDate" column="effective_date"/>
+        <result property="expireDate" column="expire_date"/>
+        <result property="quotaStatus" column="quota_status"/>
+        <result property="guaranteeInfo" column="guarantee_info"/>
+        <result property="riskControlMeasures" column="risk_control_measures"/>
+        <result property="quotaManager" column="quota_manager"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdTime" column="created_time"/>
+        <result property="updatedBy" column="updated_by"/>
+        <result property="updatedTime" column="updated_time"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        quota_id, customer_id, quota_type, quota_subtype, total_quota, used_quota, 
+        available_quota, frozen_quota, currency, quota_level, parent_quota_id, 
+        effective_date, expire_date, quota_status, guarantee_info, risk_control_measures, 
+        quota_manager, created_by, created_time, updated_by, updated_time
+    </sql>
+
+    <insert id="insert" parameterType="com.bank.creditquota.entity.CreditQuota">
+        INSERT INTO t_credit_quota (
+            customer_id, quota_type, quota_subtype, total_quota, used_quota,
+            frozen_quota, currency, quota_level, parent_quota_id,
+            effective_date, expire_date, quota_status, guarantee_info, 
+            risk_control_measures, quota_manager, created_by, updated_by
+        ) VALUES (
+            #{customerId}, #{quotaType}, #{quotaSubtype}, #{totalQuota}, #{usedQuota},
+            #{frozenQuota}, #{currency}, #{quotaLevel}, #{parentQuotaId},
+            #{effectiveDate}, #{expireDate}, #{quotaStatus}, #{guaranteeInfo},
+            #{riskControlMeasures}, #{quotaManager}, #{createdBy}, #{updatedBy}
+        )
+    </insert>
+
+    <update id="updateById" parameterType="com.bank.creditquota.entity.CreditQuota">
+        UPDATE t_credit_quota
+        <set>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="quotaType != null">
+                quota_type = #{quotaType},
+            </if>
+            <if test="quotaSubtype != null">
+                quota_subtype = #{quotaSubtype},
+            </if>
+            <if test="totalQuota != null">
+                total_quota = #{totalQuota},
+            </if>
+            <if test="usedQuota != null">
+                used_quota = #{usedQuota},
+            </if>
+            <if test="frozenQuota != null">
+                frozen_quota = #{frozenQuota},
+            </if>
+            <if test="currency != null">
+                currency = #{currency},
+            </if>
+            <if test="quotaLevel != null">
+                quota_level = #{quotaLevel},
+            </if>
+            <if test="parentQuotaId != null">
+                parent_quota_id = #{parentQuotaId},
+            </if>
+            <if test="effectiveDate != null">
+                effective_date = #{effectiveDate},
+            </if>
+            <if test="expireDate != null">
+                expire_date = #{expireDate},
+            </if>
+            <if test="quotaStatus != null">
+                quota_status = #{quotaStatus},
+            </if>
+            <if test="guaranteeInfo != null">
+                guarantee_info = #{guaranteeInfo},
+            </if>
+            <if test="riskControlMeasures != null">
+                risk_control_measures = #{riskControlMeasures},
+            </if>
+            <if test="quotaManager != null">
+                quota_manager = #{quotaManager},
+            </if>
+            <if test="updatedBy != null">
+                updated_by = #{updatedBy},
+            </if>
+            updated_time = NOW()
+        </set>
+        WHERE quota_id = #{quotaId}
+    </update>
+
+    <update id="updateAvailableQuota">
+        UPDATE t_credit_quota 
+        SET available_quota = available_quota - #{amount},
+            used_quota = used_quota + #{amount},
+            updated_time = NOW()
+        WHERE quota_id = #{quotaId}
+    </update>
+
+    <update id="updateUsedQuota">
+        UPDATE t_credit_quota 
+        SET used_quota = used_quota + #{amount},
+            available_quota = available_quota - #{amount},
+            updated_time = NOW()
+        WHERE quota_id = #{quotaId}
+    </update>
+
+    <update id="updateQuotaStatus">
+        UPDATE t_credit_quota 
+        SET quota_status = #{status},
+            updated_time = NOW()
+        WHERE quota_id = #{quotaId}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM t_credit_quota WHERE quota_id = #{quotaId}
+    </delete>
+
+    <select id="selectById" parameterType="java.lang.Long" resultMap="CreditQuotaResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_credit_quota
+        WHERE quota_id = #{quotaId}
+    </select>
+
+    <select id="selectAll" resultMap="CreditQuotaResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_credit_quota
+        ORDER BY created_time DESC
+    </select>
+
+    <select id="selectByCustomerId" parameterType="java.lang.String" resultMap="CreditQuotaResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_credit_quota
+        WHERE customer_id = #{customerId}
+        ORDER BY created_time DESC
+    </select>
+
+    <select id="selectByQuotaType" parameterType="java.lang.String" resultMap="CreditQuotaResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_credit_quota
+        WHERE quota_type = #{quotaType}
+        ORDER BY created_time DESC
+    </select>
+
+    <select id="selectByStatus" parameterType="java.lang.String" resultMap="CreditQuotaResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_credit_quota
+        WHERE quota_status = #{status}
+        ORDER BY created_time DESC
+    </select>
+
+    <select id="selectByCustomerIdAndQuotaType" resultMap="CreditQuotaResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_credit_quota
+        WHERE customer_id = #{customerId} AND quota_type = #{quotaType}
+    </select>
+</mapper>
