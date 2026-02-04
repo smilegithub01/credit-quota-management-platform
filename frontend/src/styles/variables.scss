@@ -1,0 +1,73 @@
+// Element Plus 自定义变量
+$--colors: (
+  'primary': (
+    'base': #409eff,
+  ),
+  'success': (
+    'base': #67c23a,
+  ),
+  'warning': (
+    'base': #e6a23c,
+  ),
+  'danger': (
+    'base': #f56c6c,
+  ),
+  'info': (
+    'base': #909399,
+  )
+);
+
+// 主题色
+$primary-color: #409eff;
+$success-color: #67c23a;
+$warning-color: #e6a23c;
+$danger-color: #f56c6c;
+$info-color: #909399;
+
+// 背景色
+$body-bg: #f5f5f5;
+$card-bg: #ffffff;
+$border-color: #dcdfe6;
+
+// 文字颜色
+$text-primary: #303133;
+$text-regular: #606266;
+$text-secondary: #909399;
+$text-placeholder: #c0c4cc;
+
+// 边框
+$border-radius-base: 4px;
+$border-radius-small: 2px;
+$border-radius-large: 6px;
+
+// 阴影
+$box-shadow-base: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
+$box-shadow-dark: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.12);
+$box-shadow-light: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+
+// 间距
+$spacing-xs: 5px;
+$spacing-sm: 10px;
+$spacing-md: 15px;
+$spacing-lg: 20px;
+$spacing-xl: 25px;
+
+// 宽度
+$sidebar-width: 200px;
+$content-max-width: 1200px;
+
+// 断点
+$sm: 576px;
+$md: 768px;
+$lg: 992px;
+$xl: 1200px;
+$xxl: 1600px;
+
+// 响应式断点
+$breakpoints: (
+  'xs': '(max-width: #{$sm - 1})',
+  'sm': '(min-width: #{$sm})',
+  'md': '(min-width: #{$md})',
+  'lg': '(min-width: #{$lg})',
+  'xl': '(min-width: #{$xl})'
+);
