@@ -1,0 +1,52 @@
+{
+  "name": "credit-quota-management-frontend",
+  "version": "1.0.0",
+  "description": "银行信贷额度管控平台前端 - Vue.js应用",
+  "main": "src/main.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint src --ext .js,.vue",
+    "format": "prettier --write src/"
+  },
+  "keywords": [
+    "vue",
+    "banking",
+    "credit",
+    "quota",
+    "management",
+    "financial"
+  ],
+  "author": "OpenClaw AI Assistant",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "vue": "^3.4.0",
+    "vue-router": "^4.2.5",
+    "vuex": "^4.1.0",
+    "axios": "^1.6.0",
+    "element-plus": "^2.4.2",
+    "echarts": "^5.4.3",
+    "moment": "^2.29.4",
+    "@vueuse/core": "^10.6.1",
+    "vue-i18n": "^9.6.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^4.4.1",
+    "vite": "^4.5.0",
+    "eslint": "^8.53.0",
+    "prettier": "^3.1.0",
+    "@rushstack/eslint-patch": "^1.5.1",
+    "sass": "^1.69.5",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.31"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}

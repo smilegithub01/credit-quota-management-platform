@@ -7,148 +7,148 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public interface UnifiedCreditService {
-    // 客户管理相关
+    // 客户信息管理
     /**
-     * 新增客户信息
+     * 创建客户
      */
-    boolean addCustomerInfo(CustomerInfo customerInfo);
+    CustomerInfo createCustomer(CustomerInfo customerInfo);
     
     /**
-     * 更新客户信息
+     * 更新客户
      */
-    boolean updateCustomerInfo(CustomerInfo customerInfo);
+    CustomerInfo updateCustomer(CustomerInfo customerInfo);
     
     /**
-     * 查询客户信息
+     * 根据ID获取客户
      */
-    CustomerInfo getCustomerInfo(String customerId);
+    CustomerInfo getCustomerById(String customerId);
     
     /**
-     * 查询客户列表
+     * 获取所有客户（分页）
      */
-    List<CustomerInfo> getCustomerList(int pageNum, int pageSize);
-    
-    // 集团关系管理相关
+    List<CustomerInfo> getAllCustomers(int pageNum, int pageSize);
+
+    // 集团客户关系管理
     /**
-     * 新增集团关系
+     * 创建集团关系
      */
-    boolean addGroupRelationship(GroupRelationship groupRelationship);
+    GroupRelationship createGroupRelationship(GroupRelationship groupRelationship);
     
     /**
      * 更新集团关系
      */
-    boolean updateGroupRelationship(GroupRelationship groupRelationship);
+    GroupRelationship updateGroupRelationship(GroupRelationship groupRelationship);
     
     /**
-     * 查询集团关系
+     * 根据父客户ID获取集团关系
      */
-    List<GroupRelationship> getGroupRelationshipByParent(String parentCustomerId);
+    List<GroupRelationship> getGroupRelationshipsByParent(String parentCustomerId);
     
     /**
-     * 查询集团关系
+     * 根据子客户ID获取集团关系
      */
-    List<GroupRelationship> getGroupRelationshipByChild(String childCustomerId);
-    
-    // 客户关联方管理相关
+    List<GroupRelationship> getGroupRelationshipsByChild(String childCustomerId);
+
+    // 客户关联方管理
     /**
-     * 新增客户关联方
+     * 创建客户关联方
      */
-    boolean addCustomerAffiliate(CustomerAffiliate customerAffiliate);
+    CustomerAffiliate createCustomerAffiliate(CustomerAffiliate customerAffiliate);
     
     /**
      * 更新客户关联方
      */
-    boolean updateCustomerAffiliate(CustomerAffiliate customerAffiliate);
+    CustomerAffiliate updateCustomerAffiliate(CustomerAffiliate customerAffiliate);
     
     /**
-     * 查询客户关联方
+     * 根据客户ID获取关联方
      */
-    List<CustomerAffiliate> getCustomerAffiliatesByCustomerId(String customerId);
-    
-    // 授信申请相关
+    List<CustomerAffiliate> getCustomerAffiliates(String customerId);
+
+    // 授信申请管理
     /**
-     * 提交授信申请
+     * 创建授信申请
      */
-    String submitCreditApplication(CreditApplication creditApplication);
+    CreditApplication createCreditApplication(CreditApplication creditApplication);
     
     /**
      * 更新授信申请
      */
-    boolean updateCreditApplication(CreditApplication creditApplication);
+    CreditApplication updateCreditApplication(CreditApplication creditApplication);
     
     /**
-     * 查询授信申请
+     * 根据ID获取授信申请
      */
-    CreditApplication getCreditApplication(String applicationId);
+    CreditApplication getCreditApplicationById(String applicationId);
     
     /**
-     * 查询客户授信申请列表
+     * 根据客户ID获取授信申请列表
      */
     List<CreditApplication> getCreditApplicationsByCustomer(String customerId);
-    
-    // 用信申请相关
+
+    // 用信申请管理
     /**
-     * 提交用信申请
+     * 创建用信申请
      */
-    String submitUsageApplication(UsageApplication usageApplication);
+    UsageApplication createUsageApplication(UsageApplication usageApplication);
     
     /**
      * 更新用信申请
      */
-    boolean updateUsageApplication(UsageApplication usageApplication);
+    UsageApplication updateUsageApplication(UsageApplication usageApplication);
     
     /**
-     * 查询用信申请
+     * 根据ID获取用信申请
      */
-    UsageApplication getUsageApplication(String usageId);
+    UsageApplication getUsageApplicationById(String usageId);
     
     /**
-     * 查询客户用信申请列表
+     * 根据客户ID获取用信申请列表
      */
     List<UsageApplication> getUsageApplicationsByCustomer(String customerId);
-    
-    // 额度管理相关
+
+    // 额度管理
     /**
-     * 核定授信额度
+     * 创建授信额度
      */
-    boolean approveCreditQuota(CreditQuota creditQuota);
+    CreditQuota createCreditQuota(CreditQuota creditQuota);
     
     /**
      * 更新授信额度
      */
-    boolean updateCreditQuota(CreditQuota creditQuota);
+    CreditQuota updateCreditQuota(CreditQuota creditQuota);
     
     /**
-     * 查询授信额度
+     * 根据ID获取授信额度
      */
-    CreditQuota getCreditQuota(Long quotaId);
+    CreditQuota getCreditQuotaById(Long quotaId);
     
     /**
-     * 根据客户和额度类型查询
+     * 根据客户和额度类型获取额度
      */
     CreditQuota getCreditQuotaByCustomerAndType(String customerId, String quotaType);
     
     /**
-     * 查询客户所有额度
+     * 根据客户ID获取额度列表
      */
     List<CreditQuota> getCreditQuotasByCustomer(String customerId);
-    
-    // 额度使用明细相关
+
+    // 额度使用明细管理
     /**
-     * 记录额度使用明细
+     * 创建额度使用明细
      */
-    boolean recordQuotaUsageDetail(QuotaUsageDetail quotaUsageDetail);
+    QuotaUsageDetail createQuotaUsageDetail(QuotaUsageDetail quotaUsageDetail);
     
     /**
-     * 查询额度使用明细
+     * 根据额度ID获取使用明细
      */
     List<QuotaUsageDetail> getQuotaUsageDetailsByQuotaId(Long quotaId);
-    
-    // 统一额度管控相关
+
+    // 统一额度管控
     /**
-     * 检查额度是否充足
+     * 检查额度
      */
-    boolean checkQuotaAvailability(String customerId, String quotaType, BigDecimal amount);
+    boolean checkQuota(QuotaRequestDTO request);
     
     /**
      * 占用额度
@@ -159,6 +159,16 @@ public interface UnifiedCreditService {
      * 释放额度
      */
     QuotaResponseDTO releaseQuota(QuotaRequestDTO request);
+    
+    /**
+     * 额度预占
+     */
+    QuotaResponseDTO preOccupyQuota(QuotaRequestDTO request);
+    
+    /**
+     * 取消预占额度
+     */
+    QuotaResponseDTO cancelPreOccupiedQuota(QuotaRequestDTO request);
     
     /**
      * 冻结额度
@@ -181,105 +191,95 @@ public interface UnifiedCreditService {
     QuotaResponseDTO disableQuota(QuotaRequestDTO request);
     
     /**
-     * 额度调整
+     * 调整额度
      */
     QuotaResponseDTO adjustQuota(QuotaRequestDTO request);
     
     /**
-     * 额度预占（预留）
-     */
-    QuotaResponseDTO preOccupyQuota(QuotaRequestDTO request);
-    
-    /**
-     * 取消预占额度
-     */
-    QuotaResponseDTO cancelPreOccupiedQuota(QuotaRequestDTO request);
-    
-    /**
-     * 集团额度分配
+     * 分配集团额度
      */
     QuotaResponseDTO distributeGroupQuota(QuotaRequestDTO request);
     
     /**
      * 获取客户总额度信息
      */
-    QuotaResponseDTO getCustomerTotalQuota(String customerId);
+    Object getTotalQuotaInfo(String customerId);
     
     /**
      * 获取集团总额度信息
      */
-    QuotaResponseDTO getGroupTotalQuota(String groupId);
+    Object getGroupTotalQuotaInfo(String groupId);
     
     /**
-     * 获取集团成员额度汇总
+     * 获取集团成员额度
      */
-    QuotaResponseDTO getGroupMembersQuota(String groupId);
-    
-    // 风险监控相关
+    Object getGroupMemberQuotas(String groupId);
+
+    // 风险监控
     /**
-     * 新增风险监控指标
+     * 创建风险监控指标
      */
-    boolean addRiskMonitoringIndex(RiskMonitoringIndex riskMonitoringIndex);
+    RiskMonitoringIndex createRiskMonitoringIndex(RiskMonitoringIndex riskMonitoringIndex);
     
     /**
      * 更新风险监控指标
      */
-    boolean updateRiskMonitoringIndex(RiskMonitoringIndex riskMonitoringIndex);
+    RiskMonitoringIndex updateRiskMonitoringIndex(RiskMonitoringIndex riskMonitoringIndex);
     
     /**
-     * 查询风险监控指标
+     * 根据客户获取风险监控指标
      */
-    List<RiskMonitoringIndex> getRiskMonitoringIndicesByCustomerId(String customerId);
+    List<RiskMonitoringIndex> getRiskMonitoringIndexesByCustomer(String customerId);
     
     /**
      * 检查客户风险指标
      */
-    boolean checkCustomerRiskIndices(String customerId);
-    
-    // 风险预警相关
+    List<RiskMonitoringIndex> checkRiskIndexesByCustomer(String customerId);
+
+    // 风险预警
     /**
-     * 新增风险预警
+     * 创建风险预警
      */
-    boolean addRiskWarning(RiskWarning riskWarning);
+    RiskWarning createRiskWarning(RiskWarning riskWarning);
     
     /**
      * 更新风险预警
      */
-    boolean updateRiskWarning(RiskWarning riskWarning);
+    RiskWarning updateRiskWarning(RiskWarning riskWarning);
     
     /**
-     * 查询风险预警
+     * 根据客户获取风险预警
      */
-    List<RiskWarning> getRiskWarningsByCustomerId(String customerId);
+    List<RiskWarning> getRiskWarningsByCustomer(String customerId);
     
     /**
      * 处理风险预警
      */
-    boolean handleRiskWarning(Long warningId, String handler, String handleResult);
-    
-    // 审批流程相关
+    RiskWarning handleRiskWarning(Long warningId, RiskWarning riskWarning);
+
+    // 审批流程
     /**
-     * 启动审批流程
+     * 创建审批流程
      */
-    String startApprovalProcess(ApprovalProcess approvalProcess);
+    ApprovalProcess createApprovalProcess(ApprovalProcess approvalProcess);
     
     /**
      * 更新审批流程
      */
-    boolean updateApprovalProcess(ApprovalProcess approvalProcess);
+    ApprovalProcess updateApprovalProcess(ApprovalProcess approvalProcess);
     
     /**
-     * 查询审批流程
+     * 根据ID获取审批流程
      */
-    ApprovalProcess getApprovalProcess(String processId);
+    ApprovalProcess getApprovalProcessById(String processId);
     
     /**
      * 完成审批节点
      */
-    boolean completeApprovalNode(ApprovalNode approvalNode);
+    ApprovalNode completeApprovalNode(Long nodeId, ApprovalNode approvalNode);
     
     /**
-     * 查询审批节点
+     * 根据流程ID获取审批节点
      */
-    List<ApprovalNode> getApprovalNodesByProcessId(String processId);
+    List<ApprovalNode> getApprovalNodesByProcess(String processId);
 }

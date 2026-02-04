@@ -11,311 +11,470 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/unified-credit")
+@RequestMapping("/api/v1")
+@CrossOrigin(origins = "*")
 public class UnifiedCreditController {
 
     @Autowired
     private UnifiedCreditService unifiedCreditService;
 
-    // 客户管理相关接口
-    @PostMapping("/customer")
-    public ResponseEntity<Boolean> addCustomerInfo(@RequestBody CustomerInfo customerInfo) {
+    // 客户管理接口
+    @PostMapping("/customers")
+    public ResponseEntity<CustomerInfo> createCustomer(@RequestBody CustomerInfo customerInfo) {
+        customerInfo.setCreatedTime(java.time.LocalDateTime.now());
         boolean result = unifiedCreditService.addCustomerInfo(customerInfo);
-        return ResponseEntity.ok(result);
+        if (result) {
+            return ResponseEntity.ok(customerInfo);
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
-    @PutMapping("/customer")
-    public ResponseEntity<Boolean> updateCustomerInfo(@RequestBody CustomerInfo customerInfo) {
+    @PutMapping("/customers/{customerId}")
+    public ResponseEntity<CustomerInfo> updateCustomer(
+            @PathVariable String customerId,
+            @RequestBody CustomerInfo customerInfo) {
+        customerInfo.setCustomerId(customerId);
+        customerInfo.setUpdatedTime(java.time.LocalDateTime.now());
         boolean result = unifiedCreditService.updateCustomerInfo(customerInfo);
-        return ResponseEntity.ok(result);
+        if (result) {
+            return ResponseEntity.ok(customerInfo);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    @GetMapping("/customer/{customerId}")
-    public ResponseEntity<CustomerInfo> getCustomerInfo(@PathVariable String customerId) {
+    @GetMapping("/customers/{customerId}")
+    public ResponseEntity<CustomerInfo> getCustomer(@PathVariable String customerId) {
         CustomerInfo customerInfo = unifiedCreditService.getCustomerInfo(customerId);
-        return ResponseEntity.ok(customerInfo);
+        if (customerInfo != null) {
+            return ResponseEntity.ok(customerInfo);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/customers")
-    public ResponseEntity<List<CustomerInfo>> getCustomerList(
+    public ResponseEntity<List<CustomerInfo>> getCustomers(
             @RequestParam(defaultValue = "1") int pageNum,
             @RequestParam(defaultValue = "10") int pageSize) {
         List<CustomerInfo> customerList = unifiedCreditService.getCustomerList(pageNum, pageSize);
         return ResponseEntity.ok(customerList);
     }
 
-    // 集团关系管理相关接口
-    @PostMapping("/group-relationship")
-    public ResponseEntity<Boolean> addGroupRelationship(@RequestBody GroupRelationship groupRelationship) {
+    // 集团关系管理接口
+    @PostMapping("/customers/{customerId}/groups")
+    public ResponseEntity<GroupRelationship> createGroupRelationship(
+            @PathVariable String customerId,
+            @RequestBody GroupRelationship groupRelationship) {
+        groupRelationship.setParentCustomerId(customerId);
+        groupRelationship.setCreatedTime(java.time.LocalDateTime.now());
         boolean result = unifiedCreditService.addGroupRelationship(groupRelationship);
-        return ResponseEntity.ok(result);
+        if (result) {
+            return ResponseEntity.ok(groupRelationship);
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
-    @PutMapping("/group-relationship")
-    public ResponseEntity<Boolean> updateGroupRelationship(@RequestBody GroupRelationship groupRelationship) {
+    @PutMapping("/group-relationships/{relationshipId}")
+    public ResponseEntity<GroupRelationship> updateGroupRelationship(
+            @PathVariable Long relationshipId,
+            @RequestBody GroupRelationship groupRelationship) {
+        groupRelationship.setUpdatedTime(java.time.LocalDateTime.now());
         boolean result = unifiedCreditService.updateGroupRelationship(groupRelationship);
-        return ResponseEntity.ok(result);
+        if (result) {
+            return ResponseEntity.ok(groupRelationship);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    @GetMapping("/group-relationship/parent/{parentCustomerId}")
-    public ResponseEntity<List<GroupRelationship>> getGroupRelationshipByParent(@PathVariable String parentCustomerId) {
-        List<GroupRelationship> relationships = unifiedCreditService.getGroupRelationshipByParent(parentCustomerId);
+    @GetMapping("/customers/{customerId}/children")
+    public ResponseEntity<List<GroupRelationship>> getChildRelationships(@PathVariable String customerId) {
+        List<GroupRelationship> relationships = unifiedCreditService.getGroupRelationshipByParent(customerId);
         return ResponseEntity.ok(relationships);
     }
 
-    @GetMapping("/group-relationship/child/{childCustomerId}")
-    public ResponseEntity<List<GroupRelationship>> getGroupRelationshipByChild(@PathVariable String childCustomerId) {
-        List<GroupRelationship> relationships = unifiedCreditService.getGroupRelationshipByChild(childCustomerId);
+    @GetMapping("/customers/{customerId}/parents")
+    public ResponseEntity<List<GroupRelationship>> getParentRelationships(@PathVariable String customerId) {
+        List<GroupRelationship> relationships = unifiedCreditService.getGroupRelationshipByChild(customerId);
         return ResponseEntity.ok(relationships);
     }
 
-    // 客户关联方管理相关接口
-    @PostMapping("/customer-affiliate")
-    public ResponseEntity<Boolean> addCustomerAffiliate(@RequestBody CustomerAffiliate customerAffiliate) {
+    // 客户关联方管理接口
+    @PostMapping("/customers/{customerId}/affiliates")
+    public ResponseEntity<CustomerAffiliate> createCustomerAffiliate(
+            @PathVariable String customerId,
+            @RequestBody CustomerAffiliate customerAffiliate) {
+        customerAffiliate.setCustomerId(customerId);
+        customerAffiliate.setCreatedTime(java.time.LocalDateTime.now());
         boolean result = unifiedCreditService.addCustomerAffiliate(customerAffiliate);
-        return ResponseEntity.ok(result);
+        if (result) {
+            return ResponseEntity.ok(customerAffiliate);
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
-    @PutMapping("/customer-affiliate")
-    public ResponseEntity<Boolean> updateCustomerAffiliate(@RequestBody CustomerAffiliate customerAffiliate) {
+    @PutMapping("/customer-affiliates/{affiliateId}")
+    public ResponseEntity<CustomerAffiliate> updateCustomerAffiliate(
+            @PathVariable Long affiliateId,
+            @RequestBody CustomerAffiliate customerAffiliate) {
+        customerAffiliate.setUpdatedTime(java.time.LocalDateTime.now());
         boolean result = unifiedCreditService.updateCustomerAffiliate(customerAffiliate);
-        return ResponseEntity.ok(result);
+        if (result) {
+            return ResponseEntity.ok(customerAffiliate);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    @GetMapping("/customer-affiliate/customer/{customerId}")
-    public ResponseEntity<List<CustomerAffiliate>> getCustomerAffiliatesByCustomerId(@PathVariable String customerId) {
+    @GetMapping("/customers/{customerId}/affiliates")
+    public ResponseEntity<List<CustomerAffiliate>> getCustomerAffiliates(@PathVariable String customerId) {
         List<CustomerAffiliate> affiliates = unifiedCreditService.getCustomerAffiliatesByCustomerId(customerId);
         return ResponseEntity.ok(affiliates);
     }
 
-    // 授信申请相关接口
-    @PostMapping("/credit-application")
-    public ResponseEntity<String> submitCreditApplication(@RequestBody CreditApplication creditApplication) {
+    // 授信申请管理接口
+    @PostMapping("/customers/{customerId}/applications")
+    public ResponseEntity<String> createCreditApplication(
+            @PathVariable String customerId,
+            @RequestBody CreditApplication creditApplication) {
+        creditApplication.setCustomerId(customerId);
         String applicationId = unifiedCreditService.submitCreditApplication(creditApplication);
-        return ResponseEntity.ok(applicationId);
+        if (applicationId != null && !applicationId.isEmpty()) {
+            return ResponseEntity.ok(applicationId);
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
-    @PutMapping("/credit-application")
-    public ResponseEntity<Boolean> updateCreditApplication(@RequestBody CreditApplication creditApplication) {
+    @PutMapping("/credit-applications/{applicationId}")
+    public ResponseEntity<CreditApplication> updateCreditApplication(
+            @PathVariable String applicationId,
+            @RequestBody CreditApplication creditApplication) {
+        creditApplication.setApplicationId(applicationId);
         boolean result = unifiedCreditService.updateCreditApplication(creditApplication);
-        return ResponseEntity.ok(result);
+        if (result) {
+            return ResponseEntity.ok(creditApplication);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    @GetMapping("/credit-application/{applicationId}")
+    @GetMapping("/credit-applications/{applicationId}")
     public ResponseEntity<CreditApplication> getCreditApplication(@PathVariable String applicationId) {
         CreditApplication application = unifiedCreditService.getCreditApplication(applicationId);
-        return ResponseEntity.ok(application);
+        if (application != null) {
+            return ResponseEntity.ok(application);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    @GetMapping("/credit-application/customer/{customerId}")
+    @GetMapping("/customers/{customerId}/applications")
     public ResponseEntity<List<CreditApplication>> getCreditApplicationsByCustomer(@PathVariable String customerId) {
         List<CreditApplication> applications = unifiedCreditService.getCreditApplicationsByCustomer(customerId);
         return ResponseEntity.ok(applications);
     }
 
-    // 用信申请相关接口
-    @PostMapping("/usage-application")
-    public ResponseEntity<String> submitUsageApplication(@RequestBody UsageApplication usageApplication) {
+    // 用信申请管理接口
+    @PostMapping("/usage-applications")
+    public ResponseEntity<String> createUsageApplication(@RequestBody UsageApplication usageApplication) {
         String usageId = unifiedCreditService.submitUsageApplication(usageApplication);
-        return ResponseEntity.ok(usageId);
+        if (usageId != null && !usageId.isEmpty()) {
+            return ResponseEntity.ok(usageId);
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
-    @PutMapping("/usage-application")
-    public ResponseEntity<Boolean> updateUsageApplication(@RequestBody UsageApplication usageApplication) {
+    @PutMapping("/usage-applications/{usageId}")
+    public ResponseEntity<UsageApplication> updateUsageApplication(
+            @PathVariable String usageId,
+            @RequestBody UsageApplication usageApplication) {
+        usageApplication.setUsageId(usageId);
         boolean result = unifiedCreditService.updateUsageApplication(usageApplication);
-        return ResponseEntity.ok(result);
+        if (result) {
+            return ResponseEntity.ok(usageApplication);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    @GetMapping("/usage-application/{usageId}")
+    @GetMapping("/usage-applications/{usageId}")
     public ResponseEntity<UsageApplication> getUsageApplication(@PathVariable String usageId) {
         UsageApplication usageApplication = unifiedCreditService.getUsageApplication(usageId);
-        return ResponseEntity.ok(usageApplication);
+        if (usageApplication != null) {
+            return ResponseEntity.ok(usageApplication);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    @GetMapping("/usage-application/customer/{customerId}")
+    @GetMapping("/customers/{customerId}/usage-applications")
     public ResponseEntity<List<UsageApplication>> getUsageApplicationsByCustomer(@PathVariable String customerId) {
         List<UsageApplication> applications = unifiedCreditService.getUsageApplicationsByCustomer(customerId);
         return ResponseEntity.ok(applications);
     }
 
-    // 额度管理相关接口
-    @PostMapping("/credit-quota")
-    public ResponseEntity<Boolean> approveCreditQuota(@RequestBody CreditQuota creditQuota) {
+    // 额度管理接口
+    @PostMapping("/customers/{customerId}/quotas")
+    public ResponseEntity<CreditQuota> createCreditQuota(
+            @PathVariable String customerId,
+            @RequestBody CreditQuota creditQuota) {
+        creditQuota.setCustomerId(customerId);
         boolean result = unifiedCreditService.approveCreditQuota(creditQuota);
-        return ResponseEntity.ok(result);
+        if (result) {
+            return ResponseEntity.ok(creditQuota);
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
-    @PutMapping("/credit-quota")
-    public ResponseEntity<Boolean> updateCreditQuota(@RequestBody CreditQuota creditQuota) {
+    @PutMapping("/quotas/{quotaId}")
+    public ResponseEntity<CreditQuota> updateCreditQuota(
+            @PathVariable Long quotaId,
+            @RequestBody CreditQuota creditQuota) {
+        creditQuota.setQuotaId(quotaId);
         boolean result = unifiedCreditService.updateCreditQuota(creditQuota);
-        return ResponseEntity.ok(result);
+        if (result) {
+            return ResponseEntity.ok(creditQuota);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    @GetMapping("/credit-quota/{quotaId}")
+    @GetMapping("/quotas/{quotaId}")
     public ResponseEntity<CreditQuota> getCreditQuota(@PathVariable Long quotaId) {
         CreditQuota creditQuota = unifiedCreditService.getCreditQuota(quotaId);
-        return ResponseEntity.ok(creditQuota);
+        if (creditQuota != null) {
+            return ResponseEntity.ok(creditQuota);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    @GetMapping("/credit-quota/customer/{customerId}/type/{quotaType}")
+    @GetMapping("/customers/{customerId}/quotas/{quotaType}")
     public ResponseEntity<CreditQuota> getCreditQuotaByCustomerAndType(
-            @PathVariable String customerId, 
+            @PathVariable String customerId,
             @PathVariable String quotaType) {
         CreditQuota creditQuota = unifiedCreditService.getCreditQuotaByCustomerAndType(customerId, quotaType);
-        return ResponseEntity.ok(creditQuota);
+        if (creditQuota != null) {
+            return ResponseEntity.ok(creditQuota);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    @GetMapping("/credit-quota/customer/{customerId}")
+    @GetMapping("/customers/{customerId}/quotas")
     public ResponseEntity<List<CreditQuota>> getCreditQuotasByCustomer(@PathVariable String customerId) {
         List<CreditQuota> creditQuotas = unifiedCreditService.getCreditQuotasByCustomer(customerId);
         return ResponseEntity.ok(creditQuotas);
     }
 
-    // 额度使用明细相关接口
-    @PostMapping("/quota-usage-detail")
-    public ResponseEntity<Boolean> recordQuotaUsageDetail(@RequestBody QuotaUsageDetail quotaUsageDetail) {
+    // 额度使用明细接口
+    @PostMapping("/quotas/{quotaId}/usage-details")
+    public ResponseEntity<QuotaUsageDetail> createQuotaUsageDetail(
+            @PathVariable Long quotaId,
+            @RequestBody QuotaUsageDetail quotaUsageDetail) {
+        quotaUsageDetail.setQuotaId(quotaId);
         boolean result = unifiedCreditService.recordQuotaUsageDetail(quotaUsageDetail);
-        return ResponseEntity.ok(result);
+        if (result) {
+            return ResponseEntity.ok(quotaUsageDetail);
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
-    @GetMapping("/quota-usage-detail/quota/{quotaId}")
+    @GetMapping("/quotas/{quotaId}/usage-details")
     public ResponseEntity<List<QuotaUsageDetail>> getQuotaUsageDetailsByQuotaId(@PathVariable Long quotaId) {
         List<QuotaUsageDetail> details = unifiedCreditService.getQuotaUsageDetailsByQuotaId(quotaId);
         return ResponseEntity.ok(details);
     }
 
-    // 统一额度管控相关接口
-    @PostMapping("/quota/check")
-    public ResponseEntity<Boolean> checkQuota(@RequestParam String customerId, 
-                                             @RequestParam String quotaType, 
-                                             @RequestParam java.math.BigDecimal amount) {
-        boolean available = unifiedCreditService.checkQuotaAvailability(customerId, quotaType, amount);
-        return ResponseEntity.ok(available);
-    }
-
-    @PostMapping("/quota/occupy")
-    public ResponseEntity<QuotaResponseDTO> occupyQuota(@RequestBody QuotaRequestDTO request) {
+    // 额度管控接口
+    @PostMapping("/quotas/{quotaId}/occupy")
+    public ResponseEntity<QuotaResponseDTO> occupyQuota(
+            @PathVariable Long quotaId,
+            @RequestBody QuotaRequestDTO request) {
+        request.setQuotaId(quotaId);
         QuotaResponseDTO response = unifiedCreditService.occupyQuota(request);
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/quota/release")
-    public ResponseEntity<QuotaResponseDTO> releaseQuota(@RequestBody QuotaRequestDTO request) {
+    @PostMapping("/quotas/{quotaId}/release")
+    public ResponseEntity<QuotaResponseDTO> releaseQuota(
+            @PathVariable Long quotaId,
+            @RequestBody QuotaRequestDTO request) {
+        request.setQuotaId(quotaId);
         QuotaResponseDTO response = unifiedCreditService.releaseQuota(request);
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/quota/pre-occupy")
-    public ResponseEntity<QuotaResponseDTO> preOccupyQuota(@RequestBody QuotaRequestDTO request) {
+    @PostMapping("/quotas/{quotaId}/pre-occupy")
+    public ResponseEntity<QuotaResponseDTO> preOccupyQuota(
+            @PathVariable Long quotaId,
+            @RequestBody QuotaRequestDTO request) {
+        request.setQuotaId(quotaId);
         QuotaResponseDTO response = unifiedCreditService.preOccupyQuota(request);
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/quota/cancel-pre-occupy")
-    public ResponseEntity<QuotaResponseDTO> cancelPreOccupiedQuota(@RequestBody QuotaRequestDTO request) {
+    @PostMapping("/quotas/{quotaId}/cancel-pre-occupy")
+    public ResponseEntity<QuotaResponseDTO> cancelPreOccupiedQuota(
+            @PathVariable Long quotaId,
+            @RequestBody QuotaRequestDTO request) {
+        request.setQuotaId(quotaId);
         QuotaResponseDTO response = unifiedCreditService.cancelPreOccupiedQuota(request);
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/quota/freeze")
-    public ResponseEntity<QuotaResponseDTO> freezeQuota(@RequestBody QuotaRequestDTO request) {
+    @PostMapping("/quotas/{quotaId}/freeze")
+    public ResponseEntity<QuotaResponseDTO> freezeQuota(
+            @PathVariable Long quotaId,
+            @RequestBody QuotaRequestDTO request) {
+        request.setQuotaId(quotaId);
         QuotaResponseDTO response = unifiedCreditService.freezeQuota(request);
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/quota/unfreeze")
-    public ResponseEntity<QuotaResponseDTO> unfreezeQuota(@RequestBody QuotaRequestDTO request) {
+    @PostMapping("/quotas/{quotaId}/unfreeze")
+    public ResponseEntity<QuotaResponseDTO> unfreezeQuota(
+            @PathVariable Long quotaId,
+            @RequestBody QuotaRequestDTO request) {
+        request.setQuotaId(quotaId);
         QuotaResponseDTO response = unifiedCreditService.unfreezeQuota(request);
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/quota/enable")
-    public ResponseEntity<QuotaResponseDTO> enableQuota(@RequestBody QuotaRequestDTO request) {
+    @PostMapping("/quotas/{quotaId}/enable")
+    public ResponseEntity<QuotaResponseDTO> enableQuota(
+            @PathVariable Long quotaId,
+            @RequestBody QuotaRequestDTO request) {
+        request.setQuotaId(quotaId);
         QuotaResponseDTO response = unifiedCreditService.enableQuota(request);
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/quota/disable")
-    public ResponseEntity<QuotaResponseDTO> disableQuota(@RequestBody QuotaRequestDTO request) {
+    @PostMapping("/quotas/{quotaId}/disable")
+    public ResponseEntity<QuotaResponseDTO> disableQuota(
+            @PathVariable Long quotaId,
+            @RequestBody QuotaRequestDTO request) {
+        request.setQuotaId(quotaId);
         QuotaResponseDTO response = unifiedCreditService.disableQuota(request);
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/quota/adjust")
-    public ResponseEntity<QuotaResponseDTO> adjustQuota(@RequestBody QuotaRequestDTO request) {
+    @PostMapping("/quotas/{quotaId}/adjust")
+    public ResponseEntity<QuotaResponseDTO> adjustQuota(
+            @PathVariable Long quotaId,
+            @RequestBody QuotaRequestDTO request) {
+        request.setQuotaId(quotaId);
         QuotaResponseDTO response = unifiedCreditService.adjustQuota(request);
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/quota/distribute-group")
-    public ResponseEntity<QuotaResponseDTO> distributeGroupQuota(@RequestBody QuotaRequestDTO request) {
+    @PostMapping("/quotas/{quotaId}/distribute")
+    public ResponseEntity<QuotaResponseDTO> distributeGroupQuota(
+            @PathVariable Long quotaId,
+            @RequestBody QuotaRequestDTO request) {
+        request.setQuotaId(quotaId);
         QuotaResponseDTO response = unifiedCreditService.distributeGroupQuota(request);
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/quota/customer/{customerId}/total")
+    // 额度查询接口
+    @GetMapping("/customers/{customerId}/quota-summary")
     public ResponseEntity<QuotaResponseDTO> getCustomerTotalQuota(@PathVariable String customerId) {
         QuotaResponseDTO response = unifiedCreditService.getCustomerTotalQuota(customerId);
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/quota/group/{groupId}/total")
+    @GetMapping("/groups/{groupId}/quota-summary")
     public ResponseEntity<QuotaResponseDTO> getGroupTotalQuota(@PathVariable String groupId) {
         QuotaResponseDTO response = unifiedCreditService.getGroupTotalQuota(groupId);
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/quota/group/{groupId}/members")
+    @GetMapping("/groups/{groupId}/member-quotas")
     public ResponseEntity<QuotaResponseDTO> getGroupMembersQuota(@PathVariable String groupId) {
         QuotaResponseDTO response = unifiedCreditService.getGroupMembersQuota(groupId);
         return ResponseEntity.ok(response);
     }
 
-    // 风险监控相关接口
-    @PostMapping("/risk-monitoring-index")
-    public ResponseEntity<Boolean> addRiskMonitoringIndex(@RequestBody RiskMonitoringIndex riskMonitoringIndex) {
+    // 风险监控接口
+    @PostMapping("/customers/{customerId}/risk-indexes")
+    public ResponseEntity<RiskMonitoringIndex> createRiskMonitoringIndex(
+            @PathVariable String customerId,
+            @RequestBody RiskMonitoringIndex riskMonitoringIndex) {
+        riskMonitoringIndex.setCustomerId(customerId);
         boolean result = unifiedCreditService.addRiskMonitoringIndex(riskMonitoringIndex);
-        return ResponseEntity.ok(result);
+        if (result) {
+            return ResponseEntity.ok(riskMonitoringIndex);
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
-    @PutMapping("/risk-monitoring-index")
-    public ResponseEntity<Boolean> updateRiskMonitoringIndex(@RequestBody RiskMonitoringIndex riskMonitoringIndex) {
+    @PutMapping("/risk-indexes/{indexId}")
+    public ResponseEntity<RiskMonitoringIndex> updateRiskMonitoringIndex(
+            @PathVariable Long indexId,
+            @RequestBody RiskMonitoringIndex riskMonitoringIndex) {
         boolean result = unifiedCreditService.updateRiskMonitoringIndex(riskMonitoringIndex);
-        return ResponseEntity.ok(result);
+        if (result) {
+            return ResponseEntity.ok(riskMonitoringIndex);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    @GetMapping("/risk-monitoring-index/customer/{customerId}")
+    @GetMapping("/customers/{customerId}/risk-indexes")
     public ResponseEntity<List<RiskMonitoringIndex>> getRiskMonitoringIndicesByCustomerId(@PathVariable String customerId) {
         List<RiskMonitoringIndex> indices = unifiedCreditService.getRiskMonitoringIndicesByCustomerId(customerId);
         return ResponseEntity.ok(indices);
     }
 
-    @GetMapping("/risk-monitoring-index/customer/{customerId}/check")
+    @GetMapping("/customers/{customerId}/risk-check")
     public ResponseEntity<Boolean> checkCustomerRiskIndices(@PathVariable String customerId) {
         boolean result = unifiedCreditService.checkCustomerRiskIndices(customerId);
         return ResponseEntity.ok(result);
     }
 
-    // 风险预警相关接口
-    @PostMapping("/risk-warning")
-    public ResponseEntity<Boolean> addRiskWarning(@RequestBody RiskWarning riskWarning) {
+    // 风险预警接口
+    @PostMapping("/customers/{customerId}/risk-warnings")
+    public ResponseEntity<RiskWarning> createRiskWarning(
+            @PathVariable String customerId,
+            @RequestBody RiskWarning riskWarning) {
+        riskWarning.setCustomerId(customerId);
         boolean result = unifiedCreditService.addRiskWarning(riskWarning);
-        return ResponseEntity.ok(result);
+        if (result) {
+            return ResponseEntity.ok(riskWarning);
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
-    @PutMapping("/risk-warning")
-    public ResponseEntity<Boolean> updateRiskWarning(@RequestBody RiskWarning riskWarning) {
-        boolean result = unifiedCreditService.updateRiskWarning(rWarning);
-        return ResponseEntity.ok(result);
+    @PutMapping("/risk-warnings/{warningId}")
+    public ResponseEntity<RiskWarning> updateRiskWarning(
+            @PathVariable Long warningId,
+            @RequestBody RiskWarning riskWarning) {
+        boolean result = unifiedCreditService.updateRiskWarning(riskWarning);
+        if (result) {
+            return ResponseEntity.ok(riskWarning);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    @GetMapping("/risk-warning/customer/{customerId}")
+    @GetMapping("/customers/{customerId}/risk-warnings")
     public ResponseEntity<List<RiskWarning>> getRiskWarningsByCustomerId(@PathVariable String customerId) {
         List<RiskWarning> warnings = unifiedCreditService.getRiskWarningsByCustomerId(customerId);
         return ResponseEntity.ok(warnings);
     }
 
-    @PutMapping("/risk-warning/{warningId}/handle")
+    @PutMapping("/risk-warnings/{warningId}/handle")
     public ResponseEntity<Boolean> handleRiskWarning(
             @PathVariable Long warningId,
             @RequestParam String handler,
@@ -324,35 +483,54 @@ public class UnifiedCreditController {
         return ResponseEntity.ok(result);
     }
 
-    // 审批流程相关接口
-    @PostMapping("/approval-process")
-    public ResponseEntity<String> startApprovalProcess(@RequestBody ApprovalProcess approvalProcess) {
+    // 审批流程接口
+    @PostMapping("/approval-processes")
+    public ResponseEntity<String> createApprovalProcess(@RequestBody ApprovalProcess approvalProcess) {
         String processId = unifiedCreditService.startApprovalProcess(approvalProcess);
-        return ResponseEntity.ok(processId);
+        if (processId != null && !processId.isEmpty()) {
+            return ResponseEntity.ok(processId);
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
-    @PutMapping("/approval-process")
-    public ResponseEntity<Boolean> updateApprovalProcess(@RequestBody ApprovalProcess approvalProcess) {
+    @PutMapping("/approval-processes/{processId}")
+    public ResponseEntity<ApprovalProcess> updateApprovalProcess(
+            @PathVariable String processId,
+            @RequestBody ApprovalProcess approvalProcess) {
+        approvalProcess.setProcessId(processId);
         boolean result = unifiedCreditService.updateApprovalProcess(approvalProcess);
-        return ResponseEntity.ok(result);
+        if (result) {
+            return ResponseEntity.ok(approvalProcess);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    @GetMapping("/approval-process/{processId}")
+    @GetMapping("/approval-processes/{processId}")
     public ResponseEntity<ApprovalProcess> getApprovalProcess(@PathVariable String processId) {
         ApprovalProcess process = unifiedCreditService.getApprovalProcess(processId);
-        return ResponseEntity.ok(process);
+        if (process != null) {
+            return ResponseEntity.ok(process);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    @PutMapping("/approval-node/{nodeId}/complete")
-    public ResponseEntity<Boolean> completeApprovalNode(
+    @PutMapping("/approval-nodes/{nodeId}/complete")
+    public ResponseEntity<ApprovalNode> completeApprovalNode(
             @PathVariable Long nodeId,
             @RequestBody ApprovalNode approvalNode) {
         approvalNode.setNodeId(nodeId);
         boolean result = unifiedCreditService.completeApprovalNode(approvalNode);
-        return ResponseEntity.ok(result);
+        if (result) {
+            return ResponseEntity.ok(approvalNode);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    @GetMapping("/approval-node/process/{processId}")
+    @GetMapping("/approval-processes/{processId}/nodes")
     public ResponseEntity<List<ApprovalNode>> getApprovalNodesByProcessId(@PathVariable String processId) {
         List<ApprovalNode> nodes = unifiedCreditService.getApprovalNodesByProcessId(processId);
         return ResponseEntity.ok(nodes);
