@@ -1,509 +1,418 @@
 <template>
   <div class="system-config-container">
-    <div class="card">
-      <div class="detail-title">{{ $t('message.system.systemConfig') }}</div>
-      
-      <el-tabs v-model="activeTab" class="config-tabs">
-        <el-tab-pane :label="$t('message.system.config')" name="basic">
-          <el-form 
-            :model="configForm" 
-            :rules="configRules"
-            ref="configFormRef"
-            label-width="150px"
-            class="config-form"
-          >
-            <el-row :gutter="20">
-              <el-col :span="12">
-                <el-form-item label="API基础URL" prop="apiBaseUrl">
-                  <el-input v-model="configForm.apiBaseUrl" placeholder="请输入API基础URL" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="超时时间(ms)" prop="timeout">
-                  <el-input-number v-model="configForm.timeout" :min="1000" :max="30000" :step="1000" />
-                </el-form-item>
-              </el-col>
-            </el-row>
-            
-            <el-row :gutter="20">
-              <el-col :span="12">
-                <el-form-item label="页面主题" prop="theme">
-                  <el-select v-model="configForm.theme" placeholder="请选择页面主题">
-                    <el-option label="默认主题" value="default" />
-                    <el-option label="深色主题" value="dark" />
-                    <el-option label="蓝色主题" value="blue" />
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="语言设置" prop="language">
-                  <el-select v-model="configForm.language" placeholder="请选择语言">
-                    <el-option label="简体中文" value="zh-CN" />
-                    <el-option label="English" value="en-US" />
-                  </el-select>
-                </el-form-item>
-              </el-col>
-            </el-row>
-            
-            <el-row :gutter="20">
-              <el-col :span="12">
-                <el-form-item label="分页大小" prop="pageSize">
-                  <el-select v-model="configForm.pageSize" placeholder="请选择分页大小">
-                    <el-option label="10" :value="10" />
-                    <el-option label="20" :value="20" />
-                    <el-option label="50" :value="50" />
-                    <el-option label="100" :value="100" />
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="通知显示时长">
-                  <el-slider 
-                    v-model="configForm.notificationDuration" 
-                    :min="3" 
-                    :max="10" 
-                    :step="1"
-                    show-input
-                    show-stops
-                  />
-                </el-form-item>
-              </el-col>
-            </el-row>
-            
-            <el-form-item label="启用调试模式">
-              <el-switch v-model="configForm.debugMode" />
-              <div class="form-help">开启后将在控制台输出更多调试信息</div>
+    <div class="search-area">
+      <el-form :model="searchForm" inline label-width="100px">
+        <el-row :gutter="20">
+          <el-col :span="6">
+            <el-form-item :label="$t('message.system.configKey')">
+              <el-input 
+                v-model="searchForm.configKey" 
+                :placeholder="$t('message.common.pleaseInput') + $t('message.system.configKey')" 
+              />
             </el-form-item>
-            
-            <el-form-item label="启用数据缓存">
-              <el-switch v-model="configForm.enableCache" />
-              <div class="form-help">开启后将缓存部分数据以提高页面加载速度</div>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item :label="$t('message.system.configType')">
+              <el-select 
+                v-model="searchForm.configType" 
+                :placeholder="$t('message.common.pleaseSelect') + $t('message.system.configType')"
+                clearable
+              >
+                <el-option 
+                  v-for="item in configTypeOptions" 
+                  :key="item.value" 
+                  :label="item.label" 
+                  :value="item.value" 
+                />
+              </el-select>
             </el-form-item>
-            
+          </el-col>
+          <el-col :span="6">
             <el-form-item>
-              <el-button type="primary" @click="handleSaveBasicConfig">{{ $t('message.common.save') }}</el-button>
-              <el-button @click="handleResetBasicConfig">{{ $t('message.common.reset') }}</el-button>
+              <el-button type="primary" @click="handleSearch">{{ $t('message.common.search') }}</el-button>
+              <el-button @click="handleReset">{{ $t('message.common.reset') }}</el-button>
             </el-form-item>
-          </el-form>
-        </el-tab-pane>
-        
-        <el-tab-pane :label="$t('message.quota.title')" name="quota">
-          <el-form 
-            :model="quotaConfigForm" 
-            label-width="180px"
-            class="config-form"
-          >
-            <el-alert
-              title="额度管理相关配置"
-              type="info"
-              :closable="false"
-              style="margin-bottom: 20px;"
-            />
-            
-            <el-row :gutter="20">
-              <el-col :span="12">
-                <el-form-item label="额度最小金额" prop="minQuotaAmount">
-                  <el-input-number 
-                    v-model="quotaConfigForm.minQuotaAmount" 
-                    :precision="2" 
-                    :step="1000" 
-                    :min="0"
-                    :max="10000000"
-                  />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="额度最大金额" prop="maxQuotaAmount">
-                  <el-input-number 
-                    v-model="quotaConfigForm.maxQuotaAmount" 
-                    :precision="2" 
-                    :step="10000" 
-                    :min="0"
-                    :max="1000000000"
-                  />
-                </el-form-item>
-              </el-col>
-            </el-row>
-            
-            <el-row :gutter="20">
-              <el-col :span="12">
-                <el-form-item label="额度有效期(天)" prop="quotaValidityDays">
-                  <el-input-number v-model="quotaConfigForm.quotaValidityDays" :min="1" :max="3650" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="预警阈值(%)" prop="warningThreshold">
-                  <el-slider 
-                    v-model="quotaConfigForm.warningThreshold" 
-                    :min="0" 
-                    :max="100" 
-                    :step="1"
-                    show-input
-                  />
-                </el-form-item>
-              </el-col>
-            </el-row>
-            
-            <el-row :gutter="20">
-              <el-col :span="12">
-                <el-form-item label="启用集团额度联动">
-                  <el-switch v-model="quotaConfigForm.enableGroupQuotaLinkage" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="启用额度预占功能">
-                  <el-switch v-model="quotaConfigForm.enablePreOccupancy" />
-                </el-form-item>
-              </el-col>
-            </el-row>
-            
-            <el-form-item>
-              <el-button type="primary" @click="handleSaveQuotaConfig">保存额度配置</el-button>
-              <el-button @click="handleResetQuotaConfig">重置</el-button>
-            </el-form-item>
-          </el-form>
-        </el-tab-pane>
-        
-        <el-tab-pane :label="$t('message.risk.title')" name="risk">
-          <el-form 
-            :model="riskConfigForm" 
-            label-width="180px"
-            class="config-form"
-          >
-            <el-alert
-              title="风险管理相关配置"
-              type="info"
-              :closable="false"
-              style="margin-bottom: 20px;"
-            />
-            
-            <el-row :gutter="20">
-              <el-col :span="12">
-                <el-form-item label="风险指标检查频率(分钟)" prop="riskCheckInterval">
-                  <el-input-number v-model="riskConfigForm.riskCheckInterval" :min="1" :max="1440" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="风险预警通知方式">
-                  <el-checkbox-group v-model="riskConfigForm.notificationMethods">
-                    <el-checkbox label="email">邮件</el-checkbox>
-                    <el-checkbox label="sms">短信</el-checkbox>
-                    <el-checkbox label="system">系统通知</el-checkbox>
-                  </el-checkbox-group>
-                </el-form-item>
-              </el-col>
-            </el-row>
-            
-            <el-row :gutter="20">
-              <el-col :span="12">
-                <el-form-item label="低风险阈值" prop="lowRiskThreshold">
-                  <el-slider 
-                    v-model="riskConfigForm.lowRiskThreshold" 
-                    :min="0" 
-                    :max="100" 
-                    :step="1"
-                    show-input
-                  />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="中风险阈值" prop="mediumRiskThreshold">
-                  <el-slider 
-                    v-model="riskConfigForm.mediumRiskThreshold" 
-                    :min="0" 
-                    :max="100" 
-                    :step="1"
-                    show-input
-                  />
-                </el-form-item>
-              </el-col>
-            </el-row>
-            
-            <el-row :gutter="20">
-              <el-col :span="12">
-                <el-form-item label="高风险阈值" prop="highRiskThreshold">
-                  <el-slider 
-                    v-model="riskConfigForm.highRiskThreshold" 
-                    :min="0" 
-                    :max="100" 
-                    :step="1"
-                    show-input
-                  />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="危急风险阈值" prop="criticalRiskThreshold">
-                  <el-slider 
-                    v-model="riskConfigForm.criticalRiskThreshold" 
-                    :min="0" 
-                    :max="100" 
-                    :step="1"
-                    show-input
-                  />
-                </el-form-item>
-              </el-col>
-            </el-row>
-            
-            <el-form-item label="启用自动风险评估">
-              <el-switch v-model="riskConfigForm.enableAutoAssessment" />
-            </el-form-item>
-            
-            <el-form-item>
-              <el-button type="primary" @click="handleSaveRiskConfig">保存风险配置</el-button>
-              <el-button @click="handleResetRiskConfig">重置</el-button>
-            </el-form-item>
-          </el-form>
-        </el-tab-pane>
-        
-        <el-tab-pane :label="$t('message.approval.title')" name="approval">
-          <el-form 
-            :model="approvalConfigForm" 
-            label-width="180px"
-            class="config-form"
-          >
-            <el-alert
-              title="审批流程相关配置"
-              type="info"
-              :closable="false"
-              style="margin-bottom: 20px;"
-            />
-            
-            <el-row :gutter="20">
-              <el-col :span="12">
-                <el-form-item label="审批超时提醒(小时)" prop="approvalTimeoutHours">
-                  <el-input-number v-model="approvalConfigForm.approvalTimeoutHours" :min="1" :max="720" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="自动转办超时(小时)" prop="autoTransferHours">
-                  <el-input-number v-model="approvalConfigForm.autoTransferHours" :min="1" :max="720" />
-                </el-form-item>
-              </el-col>
-            </el-row>
-            
-            <el-row :gutter="20">
-              <el-col :span="12">
-                <el-form-item label="审批节点最大数量" prop="maxApprovalNodes">
-                  <el-input-number v-model="approvalConfigForm.maxApprovalNodes" :min="1" :max="20" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="审批优先级">
-                  <el-radio-group v-model="approvalConfigForm.prioritySetting">
-                    <el-radio label="normal">普通</el-radio>
-                    <el-radio label="high">高</el-radio>
-                    <el-radio label="urgent">紧急</el-radio>
-                  </el-radio-group>
-                </el-form-item>
-              </el-col>
-            </el-row>
-            
-            <el-form-item label="启用审批节点超时自动处理">
-              <el-switch v-model="approvalConfigForm.enableAutoTimeoutHandling" />
-            </el-form-item>
-            
-            <el-form-item>
-              <el-button type="primary" @click="handleSaveApprovalConfig">保存审批配置</el-button>
-              <el-button @click="handleResetApprovalConfig">重置</el-button>
-            </el-form-item>
-          </el-form>
-        </el-tab-pane>
-      </el-tabs>
+          </el-col>
+        </el-row>
+      </el-form>
     </div>
+
+    <div class="top-operation">
+      <el-button type="primary" @click="handleCreate">
+        <el-icon><Plus /></el-icon>
+        {{ $t('message.common.add') }}
+      </el-button>
+      <el-button @click="handleImport">
+        <el-icon><Upload /></el-icon>
+        {{ $t('message.common.import') }}
+      </el-button>
+      <el-button @click="handleExport">
+        <el-icon><Download /></el-icon>
+        {{ $t('message.common.export') }}
+      </el-button>
+    </div>
+
+    <div class="table-area">
+      <el-table 
+        :data="configList" 
+        v-loading="loading"
+        stripe
+        style="width: 100%"
+      >
+        <el-table-column prop="configId" :label="$t('message.system.configId')" width="120" />
+        <el-table-column prop="configKey" :label="$t('message.system.configKey')" width="200" />
+        <el-table-column prop="configValue" :label="$t('message.system.configValue')" width="200" show-overflow-tooltip />
+        <el-table-column prop="configType" :label="$t('message.system.configType')" width="120">
+          <template #default="{ row }">
+            {{ getConfigTypeLabel(row.configType) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="description" :label="$t('message.system.description')" width="200" show-overflow-tooltip />
+        <el-table-column prop="status" :label="$t('message.system.status')" width="100">
+          <template #default="{ row }">
+            <el-switch
+              v-model="row.status"
+              :active-value="'ACTIVE'"
+              :inactive-value="'INACTIVE'"
+              @change="handleStatusChange(row)"
+            />
+          </template>
+        </el-table-column>
+        <el-table-column prop="createTime" :label="$t('message.system.createTime')" width="150" />
+        <el-table-column prop="updateTime" :label="$t('message.system.updateTime')" width="150" />
+        <el-table-column :label="$t('message.common.operate')" width="200" fixed="right">
+          <template #default="{ row }">
+            <el-button size="small" @click="handleView(row)">{{ $t('message.common.view') }}</el-button>
+            <el-button size="small" type="primary" @click="handleEdit(row)">{{ $t('message.common.edit') }}</el-button>
+            <el-button size="small" type="danger" @click="handleDelete(row)">{{ $t('message.common.delete') }}</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      
+      <div class="pagination-area">
+        <el-pagination
+          v-model:current-page="pagination.currentPage"
+          v-model:page-size="pagination.pageSize"
+          :page-sizes="[10, 20, 50, 100]"
+          :total="pagination.total"
+          layout="total, sizes, prev, pager, next, jumper"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
+      </div>
+    </div>
+
+    <!-- 配置详情/编辑对话框 -->
+    <el-dialog 
+      v-model="dialogVisible" 
+      :title="dialogType === 'create' ? $t('message.system.addConfig') : $t('message.system.editConfig')" 
+      width="50%"
+    >
+      <el-form 
+        :model="currentConfig" 
+        :rules="configRules" 
+        ref="configFormRef"
+        label-width="120px"
+      >
+        <el-form-item :label="$t('message.system.configKey')" prop="configKey">
+          <el-input 
+            v-model="currentConfig.configKey" 
+            :placeholder="$t('message.common.pleaseInput') + $t('message.system.configKey')"
+            :disabled="dialogType === 'edit'"
+          />
+        </el-form-item>
+        
+        <el-form-item :label="$t('message.system.configValue')" prop="configValue">
+          <el-input 
+            v-model="currentConfig.configValue" 
+            :placeholder="$t('message.common.pleaseInput') + $t('message.system.configValue')"
+            type="textarea"
+            :rows="4"
+          />
+        </el-form-item>
+        
+        <el-form-item :label="$t('message.system.configType')" prop="configType">
+          <el-select 
+            v-model="currentConfig.configType" 
+            :placeholder="$t('message.common.pleaseSelect') + $t('message.system.configType')"
+            style="width: 100%"
+          >
+            <el-option 
+              v-for="item in configTypeOptions" 
+              :key="item.value" 
+              :label="item.label" 
+              :value="item.value" 
+            />
+          </el-select>
+        </el-form-item>
+        
+        <el-form-item :label="$t('message.system.description')">
+          <el-input 
+            v-model="currentConfig.description" 
+            :placeholder="$t('message.common.pleaseInput') + $t('message.system.description')"
+            type="textarea"
+            :rows="3"
+          />
+        </el-form-item>
+        
+        <el-form-item :label="$t('message.system.status')">
+          <el-select 
+            v-model="currentConfig.status" 
+            :placeholder="$t('message.common.pleaseSelect') + $t('message.system.status')"
+          >
+            <el-option label="激活" value="ACTIVE" />
+            <el-option label="停用" value="INACTIVE" />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      
+      <template #footer>
+        <el-button @click="dialogVisible = false">{{ $t('message.common.cancel') }}</el-button>
+        <el-button type="primary" @click="handleSave">{{ $t('message.common.save') }}</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import { ref, reactive, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { getSysConfigList, createSysConfig, updateSysConfig, deleteSysConfig, updateSysConfigStatus } from '@/api/system'
 
 export default {
   name: 'SystemConfig',
   setup() {
-    // 激活的标签页
-    const activeTab = ref('basic')
-    
-    // 基础配置表单
-    const configForm = reactive({
-      apiBaseUrl: 'http://localhost:8080/api/unified-credit',
-      timeout: 15000,
-      theme: 'default',
-      language: 'zh-CN',
-      pageSize: 10,
-      notificationDuration: 5,
-      debugMode: false,
-      enableCache: true
+    // 搜索表单
+    const searchForm = reactive({
+      configKey: '',
+      configType: ''
     })
     
-    // 基础配置验证规则
+    // 配置列表
+    const configList = ref([])
+    
+    // 加载状态
+    const loading = ref(false)
+    
+    // 分页信息
+    const pagination = reactive({
+      currentPage: 1,
+      pageSize: 10,
+      total: 0
+    })
+    
+    // 对话框相关
+    const dialogVisible = ref(false)
+    const dialogType = ref('create') // 'create' or 'edit'
+    const currentConfig = ref({
+      configId: null,
+      configKey: '',
+      configValue: '',
+      configType: '',
+      description: '',
+      status: 'ACTIVE'
+    })
+    const configFormRef = ref(null)
+    
+    // 配置类型选项
+    const configTypeOptions = [
+      { value: 'BASIC', label: '基础配置' },
+      { value: 'BUSINESS', label: '业务配置' },
+      { value: 'RISK', label: '风控配置' },
+      { value: 'NOTIFICATION', label: '通知配置' },
+      { value: 'SECURITY', label: '安全配置' },
+      { value: 'AUDIT', label: '审计配置' }
+    ]
+    
+    // 表单验证规则
     const configRules = {
-      apiBaseUrl: [
-        { required: true, message: '请输入API基础URL', trigger: 'blur' },
-        { pattern: /^https?:\/\/.+/, message: '请输入有效的URL', trigger: 'blur' }
+      configKey: [
+        { required: true, message: '请输入配置键名', trigger: 'blur' },
+        { min: 3, max: 50, message: '配置键名长度在3-50个字符之间', trigger: 'blur' }
       ],
-      timeout: [
-        { required: true, message: '请输入超时时间', trigger: 'blur' },
-        { type: 'number', min: 1000, max: 30000, message: '超时时间应在1000-30000ms之间', trigger: 'blur' }
+      configValue: [
+        { required: true, message: '请输入配置值', trigger: 'blur' }
+      ],
+      configType: [
+        { required: true, message: '请选择配置类型', trigger: 'change' }
       ]
     }
     
-    // 额度配置表单
-    const quotaConfigForm = reactive({
-      minQuotaAmount: 1000.00,
-      maxQuotaAmount: 10000000.00,
-      quotaValidityDays: 365,
-      warningThreshold: 80,
-      enableGroupQuotaLinkage: true,
-      enablePreOccupancy: true
-    })
-    
-    // 风险配置表单
-    const riskConfigForm = reactive({
-      riskCheckInterval: 60,
-      notificationMethods: ['email', 'system'],
-      lowRiskThreshold: 30,
-      mediumRiskThreshold: 60,
-      highRiskThreshold: 85,
-      criticalRiskThreshold: 95,
-      enableAutoAssessment: true
-    })
-    
-    // 审批配置表单
-    const approvalConfigForm = reactive({
-      approvalTimeoutHours: 24,
-      autoTransferHours: 48,
-      maxApprovalNodes: 5,
-      prioritySetting: 'normal',
-      enableAutoTimeoutHandling: false
-    })
-    
-    // 表单引用
-    const configFormRef = ref(null)
-    
-    // 保存基础配置
-    const handleSaveBasicConfig = async () => {
+    // 获取配置列表
+    const getSysConfigListData = async () => {
+      loading.value = true
       try {
-        if (configFormRef.value) {
-          await configFormRef.value.validate()
+        const params = {
+          ...searchForm,
+          pageNum: pagination.currentPage,
+          pageSize: pagination.pageSize
         }
-        
-        // TODO: 实际保存配置的API调用
-        ElMessage.success('基础配置保存成功')
-        
-        // 更新系统配置
-        const config = {
-          apiUrl: configForm.apiBaseUrl,
-          theme: configForm.theme,
-          language: configForm.language
-        }
-        // this.$store.dispatch('updateSystemConfig', config)
+        const response = await getSysConfigList(params)
+        configList.value = response.data.list || []
+        pagination.total = response.data.total || 0
       } catch (error) {
-        ElMessage.error('配置验证失败: ' + error.message)
+        ElMessage.error('获取系统配置列表失败: ' + error.message)
+      } finally {
+        loading.value = false
       }
     }
     
-    // 重置基础配置
-    const handleResetBasicConfig = () => {
-      // 恢复默认值
-      Object.assign(configForm, {
-        apiBaseUrl: 'http://localhost:8080/api/unified-credit',
-        timeout: 15000,
-        theme: 'default',
-        language: 'zh-CN',
-        pageSize: 10,
-        notificationDuration: 5,
-        debugMode: false,
-        enableCache: true
+    // 搜索处理
+    const handleSearch = () => {
+      pagination.currentPage = 1
+      getSysConfigListData()
+    }
+    
+    // 重置搜索
+    const handleReset = () => {
+      Object.keys(searchForm).forEach(key => {
+        searchForm[key] = ''
       })
-      ElMessage.info('已重置为默认配置')
+      pagination.currentPage = 1
+      getSysConfigListData()
     }
     
-    // 保存额度配置
-    const handleSaveQuotaConfig = () => {
-      // TODO: 实际保存配置的API调用
-      ElMessage.success('额度配置保存成功')
+    // 添加配置
+    const handleCreate = () => {
+      currentConfig.value = {
+        configId: null,
+        configKey: '',
+        configValue: '',
+        configType: '',
+        description: '',
+        status: 'ACTIVE'
+      }
+      dialogType.value = 'create'
+      dialogVisible.value = true
     }
     
-    // 重置额度配置
-    const handleResetQuotaConfig = () => {
-      Object.assign(quotaConfigForm, {
-        minQuotaAmount: 1000.00,
-        maxQuotaAmount: 10000000.00,
-        quotaValidityDays: 365,
-        warningThreshold: 80,
-        enableGroupQuotaLinkage: true,
-        enablePreOccupancy: true
+    // 编辑配置
+    const handleEdit = (row) => {
+      currentConfig.value = { ...row }
+      dialogType.value = 'edit'
+      dialogVisible.value = true
+    }
+    
+    // 查看配置
+    const handleView = (row) => {
+      currentConfig.value = { ...row }
+      dialogType.value = 'view'
+      dialogVisible.value = true
+    }
+    
+    // 删除配置
+    const handleDelete = (row) => {
+      ElMessageBox.confirm(
+        `${$t('message.system.confirmDelete')} "${row.configKey}"?`,
+        $t('message.system.deleteConfig'),
+        {
+          confirmButtonText: $t('message.common.confirm'),
+          cancelButtonText: $t('message.common.cancel'),
+          type: 'warning'
+        }
+      ).then(async () => {
+        try {
+          await deleteSysConfig(row.configId)
+          ElMessage.success($t('message.system.deleteSuccess'))
+          getSysConfigListData() // 刷新列表
+        } catch (error) {
+          ElMessage.error('删除配置失败: ' + error.message)
+        }
+      }).catch(() => {
+        // 取消删除
       })
-      ElMessage.info('已重置额度配置')
     }
     
-    // 保存风险配置
-    const handleSaveRiskConfig = () => {
-      // TODO: 实际保存配置的API调用
-      ElMessage.success('风险配置保存成功')
+    // 保存配置
+    const handleSave = async () => {
+      try {
+        await configFormRef.value.validate()
+        
+        if (dialogType.value === 'create') {
+          await createSysConfig(currentConfig.value)
+          ElMessage.success($t('message.system.createSuccess'))
+        } else {
+          await updateSysConfig(currentConfig.value.configId, currentConfig.value)
+          ElMessage.success($t('message.system.updateSuccess'))
+        }
+        
+        dialogVisible.value = false
+        getSysConfigListData() // 刷新列表
+      } catch (error) {
+        ElMessage.error('保存配置失败: ' + error.message)
+      }
     }
     
-    // 重置风险配置
-    const handleResetRiskConfig = () => {
-      Object.assign(riskConfigForm, {
-        riskCheckInterval: 60,
-        notificationMethods: ['email', 'system'],
-        lowRiskThreshold: 30,
-        mediumRiskThreshold: 60,
-        highRiskThreshold: 85,
-        criticalRiskThreshold: 95,
-        enableAutoAssessment: true
-      })
-      ElMessage.info('已重置风险配置')
+    // 状态变更
+    const handleStatusChange = async (row) => {
+      try {
+        await updateSysConfigStatus(row.configId, { status: row.status })
+        ElMessage.success('状态更新成功')
+      } catch (error) {
+        ElMessage.error('状态更新失败: ' + error.message)
+        // 如果失败，恢复原状态
+        row.status = row.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE'
+      }
     }
     
-    // 保存审批配置
-    const handleSaveApprovalConfig = () => {
-      // TODO: 实际保存配置的API调用
-      ElMessage.success('审批配置保存成功')
+    // 导入配置
+    const handleImport = () => {
+      ElMessage.success($t('message.common.importSuccess'))
     }
     
-    // 重置审批配置
-    const handleResetApprovalConfig = () => {
-      Object.assign(approvalConfigForm, {
-        approvalTimeoutHours: 24,
-        autoTransferHours: 48,
-        maxApprovalNodes: 5,
-        prioritySetting: 'normal',
-        enableAutoTimeoutHandling: false
-      })
-      ElMessage.info('已重置审批配置')
+    // 导出配置
+    const handleExport = () => {
+      ElMessage.success($t('message.common.exportSuccess'))
+    }
+    
+    // 分页大小变化
+    const handleSizeChange = (size) => {
+      pagination.pageSize = size
+      pagination.currentPage = 1
+      getSysConfigListData()
+    }
+    
+    // 当前页变化
+    const handleCurrentChange = (page) => {
+      pagination.currentPage = page
+      getSysConfigListData()
+    }
+    
+    // 获取配置类型标签
+    const getConfigTypeLabel = (type) => {
+      const option = configTypeOptions.find(item => item.value === type)
+      return option ? option.label : type
     }
     
     // 初始化数据
     onMounted(() => {
-      // 从系统配置中加载现有配置
-      // const systemConfig = this.$store.getters.systemConfig
-      // if (systemConfig) {
-      //   Object.assign(configForm, {
-      //     apiBaseUrl: systemConfig.apiUrl,
-      //     theme: systemConfig.theme,
-      //     language: systemConfig.language
-      //   })
-      // }
+      getSysConfigListData()
     })
     
     return {
-      activeTab,
-      configForm,
-      configRules,
-      quotaConfigForm,
-      riskConfigForm,
-      approvalConfigForm,
+      searchForm,
+      configList,
+      loading,
+      pagination,
+      dialogVisible,
+      dialogType,
+      currentConfig,
       configFormRef,
-      handleSaveBasicConfig,
-      handleResetBasicConfig,
-      handleSaveQuotaConfig,
-      handleResetQuotaConfig,
-      handleSaveRiskConfig,
-      handleResetRiskConfig,
-      handleSaveApprovalConfig,
-      handleResetApprovalConfig
+      configTypeOptions,
+      configRules,
+      handleSearch,
+      handleReset,
+      handleCreate,
+      handleEdit,
+      handleView,
+      handleDelete,
+      handleSave,
+      handleStatusChange,
+      handleImport,
+      handleExport,
+      handleSizeChange,
+      handleCurrentChange,
+      getConfigTypeLabel
     }
   }
 }
@@ -511,20 +420,28 @@ export default {
 
 <style lang="scss" scoped>
 .system-config-container {
-  .config-tabs {
-    :deep(.el-tab-pane) {
-      padding: 20px 0;
-    }
+  .search-area {
+    background: #fff;
+    padding: 20px;
+    border-radius: 4px;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
   }
-  
-  .config-form {
-    max-width: 800px;
-    
-    .form-help {
-      color: #909399;
-      font-size: 12px;
-      margin-top: 5px;
-    }
+
+  .top-operation {
+    margin-bottom: 20px;
+  }
+
+  .table-area {
+    background: #fff;
+    padding: 20px;
+    border-radius: 4px;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  }
+
+  .pagination-area {
+    margin-top: 20px;
+    text-align: right;
   }
 }
 </style>
