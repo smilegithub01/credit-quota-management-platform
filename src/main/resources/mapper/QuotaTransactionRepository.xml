@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bank.creditquota.repository.QuotaTransactionRepository">
+    <resultMap id="QuotaTransactionResultMap" type="com.bank.creditquota.entity.QuotaTransaction">
+        <id property="id" column="id"/>
+        <result property="transactionId" column="transaction_id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="customerQuotaId" column="customer_quota_id"/>
+        <result property="transactionType" column="transaction_type"/>
+        <result property="amount" column="amount"/>
+        <result property="beforeBalance" column="before_balance"/>
+        <result property="afterBalance" column="after_balance"/>
+        <result property="status" column="status"/>
+        <result property="referenceId" column="reference_id"/>
+        <result property="remarks" column="remarks"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="processedAt" column="processed_at"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, transaction_id, customer_id, customer_quota_id, transaction_type, amount, 
+        before_balance, after_balance, status, reference_id, remarks, created_at, processed_at
+    </sql>
+
+    <insert id="insert" parameterType="com.bank.creditquota.entity.QuotaTransaction" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO quota_transactions (
+            transaction_id, customer_id, customer_quota_id, transaction_type, amount, 
+            before_balance, after_balance, status, reference_id, remarks, created_at, processed_at
+        ) VALUES (
+            #{transactionId}, #{customerId}, #{customerQuotaId}, #{transactionType}, #{amount},
+            #{beforeBalance}, #{afterBalance}, #{status}, #{referenceId}, #{remarks}, NOW(), NOW()
+        )
+    </insert>
+
+    <update id="updateById" parameterType="com.bank.creditquota.entity.QuotaTransaction">
+        UPDATE quota_transactions
+        <set>
+            <if test="transactionId != null">
+                transaction_id = #{transactionId},
+            </if>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="customerQuotaId != null">
+                customer_quota_id = #{customerQuotaId},
+            </if>
+            <if test="transactionType != null">
+                transaction_type = #{transactionType},
+            </if>
+            <if test="amount != null">
+                amount = #{amount},
+            </if>
+            <if test="beforeBalance != null">
+                before_balance = #{beforeBalance},
+            </if>
+            <if test="afterBalance != null">
+                after_balance = #{afterBalance},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="referenceId != null">
+                reference_id = #{referenceId},
+            </if>
+            <if test="remarks != null">
+                remarks = #{remarks},
+            </if>
+            processed_at = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM quota_transactions WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" parameterType="java.lang.Long" resultMap="QuotaTransactionResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM quota_transactions
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectAll" resultMap="QuotaTransactionResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM quota_transactions
+        ORDER BY id DESC
+    </select>
+
+    <select id="findByCustomerId" parameterType="java.lang.String" resultMap="QuotaTransactionResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM quota_transactions
+        WHERE customer_id = #{customerId}
+        ORDER BY id DESC
+    </select>
+
+    <select id="findByCustomerQuotaId" parameterType="java.lang.Long" resultMap="QuotaTransactionResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM quota_transactions
+        WHERE customer_quota_id = #{customerQuotaId}
+        ORDER BY id DESC
+    </select>
+
+    <select id="findByTransactionId" parameterType="java.lang.String" resultMap="QuotaTransactionResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM quota_transactions
+        WHERE transaction_id = #{transactionId}
+    </select>
+</mapper>

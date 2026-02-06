@@ -1,21 +1,31 @@
 package com.bank.creditquota.repository;
 
 import com.bank.creditquota.entity.CustomerQuota;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface CustomerQuotaRepository extends JpaRepository<CustomerQuota, Long> {
+@Mapper
+public interface CustomerQuotaRepository {
+    int insert(CustomerQuota customerQuota);
+    
+    int updateById(CustomerQuota customerQuota);
+    
+    int deleteById(Long id);
+    
+    CustomerQuota selectById(Long id);
+    
+    List<CustomerQuota> selectAll();
+    
     List<CustomerQuota> findByCustomerId(String customerId);
     
     Optional<CustomerQuota> findByCustomerIdAndQuotaTypeId(String customerId, Long quotaTypeId);
     
-    @Query("SELECT SUM(cq.totalAmount) FROM CustomerQuota cq WHERE cq.customerId = ?1 AND cq.status = 'ACTIVE'")
-    java.math.BigDecimal getTotalQuotaByCustomer(String customerId);
+    BigDecimal getTotalQuotaByCustomer(@Param("customerId") String customerId);
     
-    @Query("SELECT SUM(cq.availableAmount) FROM CustomerQuota cq WHERE cq.customerId = ?1 AND cq.status = 'ACTIVE'")
-    java.math.BigDecimal getAvailableQuotaByCustomer(String customerId);
+    BigDecimal getAvailableQuotaByCustomer(@Param("customerId") String customerId);
 }
