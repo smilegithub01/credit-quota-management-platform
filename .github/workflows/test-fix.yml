@@ -1,0 +1,56 @@
+name: Test JPA to MyBatis Fix
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-fix:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+    
+    - name: Check repository files
+      run: |
+        echo "=== 检查Repository文件 ==="
+        echo "CustomerQuotaRepository.java:"
+        head -20 src/main/java/com/bank/creditquota/repository/CustomerQuotaRepository.java
+        echo ""
+        echo "QuotaTransactionRepository.java:"
+        head -20 src/main/java/com/bank/creditquota/repository/QuotaTransactionRepository.java
+    
+    - name: Check XML mapping files
+      run: |
+        echo "=== 检查XML映射文件 ==="
+        echo "CustomerQuotaRepository.xml:"
+        ls -la src/main/resources/mapper/CustomerQuotaRepository.xml
+        echo ""
+        echo "QuotaTransactionRepository.xml:"
+        ls -la src/main/resources/mapper/QuotaTransactionRepository.xml
+    
+    - name: Build with Maven
+      run: |
+        echo "=== 开始构建 ==="
+        mvn clean compile -DskipTests
+        echo "=== 构建完成 ==="
+    
+    - name: Check build artifacts
+      run: |
+        echo "=== 构建产物 ==="
+        if [ -d "target/classes" ]; then
+          echo "✅ target/classes 目录存在"
+          echo "编译的类文件:"
+          find target/classes -name "*Repository.class" | head -5
+        else
+          echo "❌ target/classes 目录不存在"
+        fi
