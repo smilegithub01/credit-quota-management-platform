@@ -1,0 +1,59 @@
+name: Check Repository Structure
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  check-repository:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Check Java files
+      run: |
+        echo "=== 检查Java文件 ==="
+        echo "Java文件总数: $(find src -name "*.java" | wc -l)"
+        echo ""
+        
+        echo "=== 检查Repository文件 ==="
+        find src -name "*Repository.java" -type f
+        echo ""
+        
+        echo "=== 检查Repository文件内容 ==="
+        for file in $(find src -name "*Repository.java" -type f); do
+          echo "文件: $file"
+          echo "包含JPA导入: $(grep -c "org.springframework.data.jpa" "$file" || echo "0")"
+          echo "包含MyBatis导入: $(grep -c "org.apache.ibatis" "$file" || echo "0")"
+          echo ""
+        done
+    
+    - name: Check XML mapping files
+      run: |
+        echo "=== 检查XML映射文件 ==="
+        find src -name "*.xml" -type f | grep -i mapper
+        echo ""
+        
+        echo "=== 检查XML文件内容 ==="
+        for file in $(find src -name "*.xml" -type f | grep -i mapper); do
+          echo "文件: $file"
+          echo "命名空间: $(grep 'namespace=' "$file" | head -1 || echo "未找到")"
+          echo ""
+        done
+    
+    - name: Check pom.xml
+      run: |
+        echo "=== 检查pom.xml ==="
+        echo "文件大小: $(wc -c < pom.xml) 字节"
+        echo ""
+        
+        echo "=== 检查依赖 ==="
+        echo "MyBatis依赖: $(grep -c "mybatis" pom.xml || echo "0")"
+        echo "JPA依赖: $(grep -c "jpa" pom.xml || echo "0")"
+        echo ""
+        
+        echo "=== 检查Spring Boot版本 ==="
+        grep "spring-boot-starter-parent" pom.xml | head -1
