@@ -1,0 +1,89 @@
+name: Project Structure Check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  structure-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Check project structure
+      run: |
+        echo "=== 项目根目录 ==="
+        pwd
+        echo ""
+        
+        echo "=== 根目录内容 ==="
+        ls -la
+        echo ""
+        
+        echo "=== Java源码目录 ==="
+        if [ -d "src/main/java" ]; then
+          echo "✅ Java源码目录存在"
+          echo "Java文件数量: $(find src/main/java -name "*.java" | wc -l)"
+          echo "示例文件:"
+          find src/main/java -name "*.java" | head -3
+        else
+          echo "❌ Java源码目录不存在"
+        fi
+        echo ""
+        
+        echo "=== Maven配置文件 ==="
+        if [ -f "pom.xml" ]; then
+          echo "✅ pom.xml存在"
+          echo "文件大小: $(wc -c < pom.xml) 字节"
+        else
+          echo "❌ pom.xml不存在"
+        fi
+        echo ""
+        
+        echo "=== 前端目录 ==="
+        if [ -d "frontend" ]; then
+          echo "✅ frontend目录存在"
+          echo "前端文件数量: $(find frontend -type f | wc -l)"
+          echo ""
+          
+          echo "=== 前端package.json ==="
+          if [ -f "frontend/package.json" ]; then
+            echo "✅ package.json存在"
+            echo "文件大小: $(wc -c < frontend/package.json) 字节"
+            echo "内容预览:"
+            cat frontend/package.json | head -10
+          else
+            echo "❌ package.json不存在"
+          fi
+          echo ""
+          
+          echo "=== 前端配置文件 ==="
+          echo "babel.config.js: $(if [ -f "frontend/babel.config.js" ]; then echo "✅"; else echo "❌"; fi)"
+          echo "package-lock.json: $(if [ -f "frontend/package-lock.json" ]; then echo "✅"; else echo "❌"; fi)"
+          echo "vue.config.js: $(if [ -f "frontend/vue.config.js" ]; then echo "✅"; else echo "❌"; fi)"
+        else
+          echo "❌ frontend目录不存在"
+        fi
+        echo ""
+        
+        echo "=== 数据库配置 ==="
+        if [ -f "src/main/resources/application.properties" ]; then
+          echo "✅ application.properties存在"
+          echo "数据库配置:"
+          grep "spring.datasource" src/main/resources/application.properties | head -3
+        else
+          echo "❌ application.properties不存在"
+        fi
+        echo ""
+        
+        echo "=== GitHub Actions工作流 ==="
+        if [ -d ".github/workflows" ]; then
+          echo "✅ .github/workflows目录存在"
+          echo "工作流文件:"
+          ls -la .github/workflows/
+        else
+          echo "❌ .github/workflows目录不存在"
+        fi
