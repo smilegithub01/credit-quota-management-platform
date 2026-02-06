@@ -1,0 +1,15 @@
+# GitHub Pages 配置
+# 这个文件用于配置GitHub Pages的部署设置
+
+# 部署分支
+deploy_branch: gh-pages
+
+# 自定义域名（可选）
+custom_domain: credit-quota-management.example.com
+
+# 构建输出目录
+build_dir: dist
+
+# 环境变量
+env:
+  VUE_APP_API_URL: https://api.credit-quota-management.example.com

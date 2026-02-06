@@ -271,9 +271,33 @@
 - 审批流程服务
 - 客户信息服务
 
-## 部署说明
+## 快速启动
 
+### 方式一：使用启动脚本（推荐）
+```bash
+cd ~/workspace/credit-quota-management-platform
+./start.sh
+```
+
+### 方式二：手动启动
 1. 确保安装了Java 17+, Maven 3.6+, MySQL 8.0+, Redis
 2. 配置application.properties中的数据库连接信息
-3. 执行数据库初始化脚本
+3. 执行数据库初始化脚本：`mysql -u root -p credit_quota_db < src/main/resources/db/schema.sql`
 4. 运行 `mvn spring-boot:run` 启动应用
+
+### 方式三：Docker部署
+```bash
+cd ~/workspace/credit-quota-management-platform
+docker-compose up -d
+```
+
+## 验证启动
+
+启动后运行验证脚本：
+```bash
+./verify.sh
+```
+
+## 详细启动指南
+
+请查看 [STARTUP_GUIDE.md](STARTUP_GUIDE.md) 获取详细的启动步骤和故障排查指南。
