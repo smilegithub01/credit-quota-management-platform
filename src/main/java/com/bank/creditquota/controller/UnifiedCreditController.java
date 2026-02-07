@@ -22,9 +22,9 @@ public class UnifiedCreditController {
     @PostMapping("/customers")
     public ResponseEntity<CustomerInfo> createCustomer(@RequestBody CustomerInfo customerInfo) {
         customerInfo.setCreatedTime(java.time.LocalDateTime.now());
-        boolean result = unifiedCreditService.addCustomerInfo(customerInfo);
-        if (result) {
-            return ResponseEntity.ok(customerInfo);
+        CustomerInfo result = unifiedCreditService.createCustomer(customerInfo);
+        if (result != null) {
+            return ResponseEntity.ok(result);
         } else {
             return ResponseEntity.badRequest().build();
         }
@@ -36,9 +36,9 @@ public class UnifiedCreditController {
             @RequestBody CustomerInfo customerInfo) {
         customerInfo.setCustomerId(customerId);
         customerInfo.setUpdatedTime(java.time.LocalDateTime.now());
-        boolean result = unifiedCreditService.updateCustomerInfo(customerInfo);
-        if (result) {
-            return ResponseEntity.ok(customerInfo);
+        CustomerInfo result = unifiedCreditService.updateCustomer(customerInfo);
+        if (result != null) {
+            return ResponseEntity.ok(result);
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -46,7 +46,7 @@ public class UnifiedCreditController {
 
     @GetMapping("/customers/{customerId}")
     public ResponseEntity<CustomerInfo> getCustomer(@PathVariable String customerId) {
-        CustomerInfo customerInfo = unifiedCreditService.getCustomerInfo(customerId);
+        CustomerInfo customerInfo = unifiedCreditService.getCustomerById(customerId);
         if (customerInfo != null) {
             return ResponseEntity.ok(customerInfo);
         } else {
@@ -58,7 +58,7 @@ public class UnifiedCreditController {
     public ResponseEntity<List<CustomerInfo>> getCustomers(
             @RequestParam(defaultValue = "1") int pageNum,
             @RequestParam(defaultValue = "10") int pageSize) {
-        List<CustomerInfo> customerList = unifiedCreditService.getCustomerList(pageNum, pageSize);
+        List<CustomerInfo> customerList = unifiedCreditService.getAllCustomers(pageNum, pageSize);
         return ResponseEntity.ok(customerList);
     }
 
@@ -69,9 +69,9 @@ public class UnifiedCreditController {
             @RequestBody GroupRelationship groupRelationship) {
         groupRelationship.setParentCustomerId(customerId);
         groupRelationship.setCreatedTime(java.time.LocalDateTime.now());
-        boolean result = unifiedCreditService.addGroupRelationship(groupRelationship);
-        if (result) {
-            return ResponseEntity.ok(groupRelationship);
+        GroupRelationship result = unifiedCreditService.createGroupRelationship(groupRelationship);
+        if (result != null) {
+            return ResponseEntity.ok(result);
         } else {
             return ResponseEntity.badRequest().build();
         }
@@ -82,9 +82,9 @@ public class UnifiedCreditController {
             @PathVariable Long relationshipId,
             @RequestBody GroupRelationship groupRelationship) {
         groupRelationship.setUpdatedTime(java.time.LocalDateTime.now());
-        boolean result = unifiedCreditService.updateGroupRelationship(groupRelationship);
-        if (result) {
-            return ResponseEntity.ok(groupRelationship);
+        GroupRelationship result = unifiedCreditService.updateGroupRelationship(groupRelationship);
+        if (result != null) {
+            return ResponseEntity.ok(result);
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -92,13 +92,13 @@ public class UnifiedCreditController {
 
     @GetMapping("/customers/{customerId}/children")
     public ResponseEntity<List<GroupRelationship>> getChildRelationships(@PathVariable String customerId) {
-        List<GroupRelationship> relationships = unifiedCreditService.getGroupRelationshipByParent(customerId);
+        List<GroupRelationship> relationships = unifiedCreditService.getGroupRelationshipsByParent(customerId);
         return ResponseEntity.ok(relationships);
     }
 
     @GetMapping("/customers/{customerId}/parents")
     public ResponseEntity<List<GroupRelationship>> getParentRelationships(@PathVariable String customerId) {
-        List<GroupRelationship> relationships = unifiedCreditService.getGroupRelationshipByChild(customerId);
+        List<GroupRelationship> relationships = unifiedCreditService.getGroupRelationshipsByChild(customerId);
         return ResponseEntity.ok(relationships);
     }
 
@@ -109,9 +109,9 @@ public class UnifiedCreditController {
             @RequestBody CustomerAffiliate customerAffiliate) {
         customerAffiliate.setCustomerId(customerId);
         customerAffiliate.setCreatedTime(java.time.LocalDateTime.now());
-        boolean result = unifiedCreditService.addCustomerAffiliate(customerAffiliate);
-        if (result) {
-            return ResponseEntity.ok(customerAffiliate);
+        CustomerAffiliate result = unifiedCreditService.createCustomerAffiliate(customerAffiliate);
+        if (result != null) {
+            return ResponseEntity.ok(result);
         } else {
             return ResponseEntity.badRequest().build();
         }
@@ -122,9 +122,9 @@ public class UnifiedCreditController {
             @PathVariable Long affiliateId,
             @RequestBody CustomerAffiliate customerAffiliate) {
         customerAffiliate.setUpdatedTime(java.time.LocalDateTime.now());
-        boolean result = unifiedCreditService.updateCustomerAffiliate(customerAffiliate);
-        if (result) {
-            return ResponseEntity.ok(customerAffiliate);
+        CustomerAffiliate result = unifiedCreditService.updateCustomerAffiliate(customerAffiliate);
+        if (result != null) {
+            return ResponseEntity.ok(result);
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -132,19 +132,19 @@ public class UnifiedCreditController {
 
     @GetMapping("/customers/{customerId}/affiliates")
     public ResponseEntity<List<CustomerAffiliate>> getCustomerAffiliates(@PathVariable String customerId) {
-        List<CustomerAffiliate> affiliates = unifiedCreditService.getCustomerAffiliatesByCustomerId(customerId);
+        List<CustomerAffiliate> affiliates = unifiedCreditService.getCustomerAffiliates(customerId);
         return ResponseEntity.ok(affiliates);
     }
 
     // 授信申请管理接口
     @PostMapping("/customers/{customerId}/applications")
-    public ResponseEntity<String> createCreditApplication(
+    public ResponseEntity<CreditApplication> createCreditApplication(
             @PathVariable String customerId,
             @RequestBody CreditApplication creditApplication) {
         creditApplication.setCustomerId(customerId);
-        String applicationId = unifiedCreditService.submitCreditApplication(creditApplication);
-        if (applicationId != null && !applicationId.isEmpty()) {
-            return ResponseEntity.ok(applicationId);
+        CreditApplication result = unifiedCreditService.createCreditApplication(creditApplication);
+        if (result != null) {
+            return ResponseEntity.ok(result);
         } else {
             return ResponseEntity.badRequest().build();
         }
@@ -155,9 +155,9 @@ public class UnifiedCreditController {
             @PathVariable String applicationId,
             @RequestBody CreditApplication creditApplication) {
         creditApplication.setApplicationId(applicationId);
-        boolean result = unifiedCreditService.updateCreditApplication(creditApplication);
-        if (result) {
-            return ResponseEntity.ok(creditApplication);
+        CreditApplication result = unifiedCreditService.updateCreditApplication(creditApplication);
+        if (result != null) {
+            return ResponseEntity.ok(result);
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -165,7 +165,7 @@ public class UnifiedCreditController {
 
     @GetMapping("/credit-applications/{applicationId}")
     public ResponseEntity<CreditApplication> getCreditApplication(@PathVariable String applicationId) {
-        CreditApplication application = unifiedCreditService.getCreditApplication(applicationId);
+        CreditApplication application = unifiedCreditService.getCreditApplicationById(applicationId);
         if (application != null) {
             return ResponseEntity.ok(application);
         } else {
@@ -181,10 +181,10 @@ public class UnifiedCreditController {
 
     // 用信申请管理接口
     @PostMapping("/usage-applications")
-    public ResponseEntity<String> createUsageApplication(@RequestBody UsageApplication usageApplication) {
-        String usageId = unifiedCreditService.submitUsageApplication(usageApplication);
-        if (usageId != null && !usageId.isEmpty()) {
-            return ResponseEntity.ok(usageId);
+    public ResponseEntity<UsageApplication> createUsageApplication(@RequestBody UsageApplication usageApplication) {
+        UsageApplication result = unifiedCreditService.createUsageApplication(usageApplication);
+        if (result != null) {
+            return ResponseEntity.ok(result);
         } else {
             return ResponseEntity.badRequest().build();
         }
@@ -195,9 +195,9 @@ public class UnifiedCreditController {
             @PathVariable String usageId,
             @RequestBody UsageApplication usageApplication) {
         usageApplication.setUsageId(usageId);
-        boolean result = unifiedCreditService.updateUsageApplication(usageApplication);
-        if (result) {
-            return ResponseEntity.ok(usageApplication);
+        UsageApplication result = unifiedCreditService.updateUsageApplication(usageApplication);
+        if (result != null) {
+            return ResponseEntity.ok(result);
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -205,7 +205,7 @@ public class UnifiedCreditController {
 
     @GetMapping("/usage-applications/{usageId}")
     public ResponseEntity<UsageApplication> getUsageApplication(@PathVariable String usageId) {
-        UsageApplication usageApplication = unifiedCreditService.getUsageApplication(usageId);
+        UsageApplication usageApplication = unifiedCreditService.getUsageApplicationById(usageId);
         if (usageApplication != null) {
             return ResponseEntity.ok(usageApplication);
         } else {
@@ -225,9 +225,9 @@ public class UnifiedCreditController {
             @PathVariable String customerId,
             @RequestBody CreditQuota creditQuota) {
         creditQuota.setCustomerId(customerId);
-        boolean result = unifiedCreditService.approveCreditQuota(creditQuota);
-        if (result) {
-            return ResponseEntity.ok(creditQuota);
+        CreditQuota result = unifiedCreditService.createCreditQuota(creditQuota);
+        if (result != null) {
+            return ResponseEntity.ok(result);
         } else {
             return ResponseEntity.badRequest().build();
         }
@@ -238,9 +238,9 @@ public class UnifiedCreditController {
             @PathVariable Long quotaId,
             @RequestBody CreditQuota creditQuota) {
         creditQuota.setQuotaId(quotaId);
-        boolean result = unifiedCreditService.updateCreditQuota(creditQuota);
-        if (result) {
-            return ResponseEntity.ok(creditQuota);
+        CreditQuota result = unifiedCreditService.updateCreditQuota(creditQuota);
+        if (result != null) {
+            return ResponseEntity.ok(result);
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -248,7 +248,7 @@ public class UnifiedCreditController {
 
     @GetMapping("/quotas/{quotaId}")
     public ResponseEntity<CreditQuota> getCreditQuota(@PathVariable Long quotaId) {
-        CreditQuota creditQuota = unifiedCreditService.getCreditQuota(quotaId);
+        CreditQuota creditQuota = unifiedCreditService.getCreditQuotaById(quotaId);
         if (creditQuota != null) {
             return ResponseEntity.ok(creditQuota);
         } else {
@@ -280,7 +280,7 @@ public class UnifiedCreditController {
             @PathVariable Long quotaId,
             @RequestBody QuotaUsageDetail quotaUsageDetail) {
         quotaUsageDetail.setQuotaId(quotaId);
-        boolean result = unifiedCreditService.recordQuotaUsageDetail(quotaUsageDetail);
+        boolean result = unifiedCreditService.createQuotaUsageDetail(quotaUsageDetail);
         if (result) {
             return ResponseEntity.ok(quotaUsageDetail);
         } else {
@@ -388,19 +388,19 @@ public class UnifiedCreditController {
     // 额度查询接口
     @GetMapping("/customers/{customerId}/quota-summary")
     public ResponseEntity<QuotaResponseDTO> getCustomerTotalQuota(@PathVariable String customerId) {
-        QuotaResponseDTO response = unifiedCreditService.getCustomerTotalQuota(customerId);
+        QuotaResponseDTO response = unifiedCreditService.getTotalQuotaInfo(customerId);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/groups/{groupId}/quota-summary")
     public ResponseEntity<QuotaResponseDTO> getGroupTotalQuota(@PathVariable String groupId) {
-        QuotaResponseDTO response = unifiedCreditService.getGroupTotalQuota(groupId);
+        QuotaResponseDTO response = unifiedCreditService.getGroupTotalQuotaInfo(groupId);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/groups/{groupId}/member-quotas")
     public ResponseEntity<QuotaResponseDTO> getGroupMembersQuota(@PathVariable String groupId) {
-        QuotaResponseDTO response = unifiedCreditService.getGroupMembersQuota(groupId);
+        QuotaResponseDTO response = unifiedCreditService.getGroupMemberQuotas(groupId);
         return ResponseEntity.ok(response);
     }
 
@@ -410,9 +410,9 @@ public class UnifiedCreditController {
             @PathVariable String customerId,
             @RequestBody RiskMonitoringIndex riskMonitoringIndex) {
         riskMonitoringIndex.setCustomerId(customerId);
-        boolean result = unifiedCreditService.addRiskMonitoringIndex(riskMonitoringIndex);
-        if (result) {
-            return ResponseEntity.ok(riskMonitoringIndex);
+        RiskMonitoringIndex result = unifiedCreditService.createRiskMonitoringIndex(riskMonitoringIndex);
+        if (result != null) {
+            return ResponseEntity.ok(result);
         } else {
             return ResponseEntity.badRequest().build();
         }
@@ -422,9 +422,9 @@ public class UnifiedCreditController {
     public ResponseEntity<RiskMonitoringIndex> updateRiskMonitoringIndex(
             @PathVariable Long indexId,
             @RequestBody RiskMonitoringIndex riskMonitoringIndex) {
-        boolean result = unifiedCreditService.updateRiskMonitoringIndex(riskMonitoringIndex);
-        if (result) {
-            return ResponseEntity.ok(riskMonitoringIndex);
+        RiskMonitoringIndex result = unifiedCreditService.updateRiskMonitoringIndex(riskMonitoringIndex);
+        if (result != null) {
+            return ResponseEntity.ok(result);
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -432,13 +432,13 @@ public class UnifiedCreditController {
 
     @GetMapping("/customers/{customerId}/risk-indexes")
     public ResponseEntity<List<RiskMonitoringIndex>> getRiskMonitoringIndicesByCustomerId(@PathVariable String customerId) {
-        List<RiskMonitoringIndex> indices = unifiedCreditService.getRiskMonitoringIndicesByCustomerId(customerId);
+        List<RiskMonitoringIndex> indices = unifiedCreditService.getRiskMonitoringIndexesByCustomer(customerId);
         return ResponseEntity.ok(indices);
     }
 
     @GetMapping("/customers/{customerId}/risk-check")
-    public ResponseEntity<Boolean> checkCustomerRiskIndices(@PathVariable String customerId) {
-        boolean result = unifiedCreditService.checkCustomerRiskIndices(customerId);
+    public ResponseEntity<List<RiskMonitoringIndex>> checkCustomerRiskIndices(@PathVariable String customerId) {
+        List<RiskMonitoringIndex> result = unifiedCreditService.checkRiskIndexesByCustomer(customerId);
         return ResponseEntity.ok(result);
     }
 
@@ -448,9 +448,9 @@ public class UnifiedCreditController {
             @PathVariable String customerId,
             @RequestBody RiskWarning riskWarning) {
         riskWarning.setCustomerId(customerId);
-        boolean result = unifiedCreditService.addRiskWarning(riskWarning);
-        if (result) {
-            return ResponseEntity.ok(riskWarning);
+        RiskWarning result = unifiedCreditService.createRiskWarning(riskWarning);
+        if (result != null) {
+            return ResponseEntity.ok(result);
         } else {
             return ResponseEntity.badRequest().build();
         }
@@ -460,9 +460,9 @@ public class UnifiedCreditController {
     public ResponseEntity<RiskWarning> updateRiskWarning(
             @PathVariable Long warningId,
             @RequestBody RiskWarning riskWarning) {
-        boolean result = unifiedCreditService.updateRiskWarning(riskWarning);
-        if (result) {
-            return ResponseEntity.ok(riskWarning);
+        RiskWarning result = unifiedCreditService.updateRiskWarning(riskWarning);
+        if (result != null) {
+            return ResponseEntity.ok(result);
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -470,25 +470,28 @@ public class UnifiedCreditController {
 
     @GetMapping("/customers/{customerId}/risk-warnings")
     public ResponseEntity<List<RiskWarning>> getRiskWarningsByCustomerId(@PathVariable String customerId) {
-        List<RiskWarning> warnings = unifiedCreditService.getRiskWarningsByCustomerId(customerId);
+        List<RiskWarning> warnings = unifiedCreditService.getRiskWarningsByCustomer(customerId);
         return ResponseEntity.ok(warnings);
     }
 
     @PutMapping("/risk-warnings/{warningId}/handle")
-    public ResponseEntity<Boolean> handleRiskWarning(
+    public ResponseEntity<RiskWarning> handleRiskWarning(
             @PathVariable Long warningId,
-            @RequestParam String handler,
-            @RequestParam String handleResult) {
-        boolean result = unifiedCreditService.handleRiskWarning(warningId, handler, handleResult);
-        return ResponseEntity.ok(result);
+            @RequestBody RiskWarning riskWarning) {
+        RiskWarning result = unifiedCreditService.handleRiskWarning(warningId, riskWarning);
+        if (result != null) {
+            return ResponseEntity.ok(result);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     // 审批流程接口
     @PostMapping("/approval-processes")
-    public ResponseEntity<String> createApprovalProcess(@RequestBody ApprovalProcess approvalProcess) {
-        String processId = unifiedCreditService.startApprovalProcess(approvalProcess);
-        if (processId != null && !processId.isEmpty()) {
-            return ResponseEntity.ok(processId);
+    public ResponseEntity<ApprovalProcess> createApprovalProcess(@RequestBody ApprovalProcess approvalProcess) {
+        ApprovalProcess result = unifiedCreditService.createApprovalProcess(approvalProcess);
+        if (result != null) {
+            return ResponseEntity.ok(result);
         } else {
             return ResponseEntity.badRequest().build();
         }
@@ -499,9 +502,9 @@ public class UnifiedCreditController {
             @PathVariable String processId,
             @RequestBody ApprovalProcess approvalProcess) {
         approvalProcess.setProcessId(processId);
-        boolean result = unifiedCreditService.updateApprovalProcess(approvalProcess);
-        if (result) {
-            return ResponseEntity.ok(approvalProcess);
+        ApprovalProcess result = unifiedCreditService.updateApprovalProcess(approvalProcess);
+        if (result != null) {
+            return ResponseEntity.ok(result);
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -509,7 +512,7 @@ public class UnifiedCreditController {
 
     @GetMapping("/approval-processes/{processId}")
     public ResponseEntity<ApprovalProcess> getApprovalProcess(@PathVariable String processId) {
-        ApprovalProcess process = unifiedCreditService.getApprovalProcess(processId);
+        ApprovalProcess process = unifiedCreditService.getApprovalProcessById(processId);
         if (process != null) {
             return ResponseEntity.ok(process);
         } else {
@@ -522,9 +525,9 @@ public class UnifiedCreditController {
             @PathVariable Long nodeId,
             @RequestBody ApprovalNode approvalNode) {
         approvalNode.setNodeId(nodeId);
-        boolean result = unifiedCreditService.completeApprovalNode(approvalNode);
-        if (result) {
-            return ResponseEntity.ok(approvalNode);
+        ApprovalNode result = unifiedCreditService.completeApprovalNode(nodeId, approvalNode);
+        if (result != null) {
+            return ResponseEntity.ok(result);
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -532,7 +535,7 @@ public class UnifiedCreditController {
 
     @GetMapping("/approval-processes/{processId}/nodes")
     public ResponseEntity<List<ApprovalNode>> getApprovalNodesByProcessId(@PathVariable String processId) {
-        List<ApprovalNode> nodes = unifiedCreditService.getApprovalNodesByProcessId(processId);
+        List<ApprovalNode> nodes = unifiedCreditService.getApprovalNodesByProcess(processId);
         return ResponseEntity.ok(nodes);
     }
 }

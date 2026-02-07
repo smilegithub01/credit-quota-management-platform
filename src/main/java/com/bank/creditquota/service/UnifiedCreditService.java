@@ -203,17 +203,17 @@ public interface UnifiedCreditService {
     /**
      * 获取客户总额度信息
      */
-    Object getTotalQuotaInfo(String customerId);
+    QuotaResponseDTO getTotalQuotaInfo(String customerId);
     
     /**
      * 获取集团总额度信息
      */
-    Object getGroupTotalQuotaInfo(String groupId);
+    QuotaResponseDTO getGroupTotalQuotaInfo(String groupId);
     
     /**
      * 获取集团成员额度
      */
-    Object getGroupMemberQuotas(String groupId);
+    QuotaResponseDTO getGroupMemberQuotas(String groupId);
 
     // 风险监控
     /**
@@ -282,4 +282,9 @@ public interface UnifiedCreditService {
      * 根据流程ID获取审批节点
      */
     List<ApprovalNode> getApprovalNodesByProcess(String processId);
+    
+    /**
+     * 记录额度使用明细
+     */
+    QuotaUsageDetail recordQuotaUsageDetail(QuotaUsageDetail quotaUsageDetail);
 }

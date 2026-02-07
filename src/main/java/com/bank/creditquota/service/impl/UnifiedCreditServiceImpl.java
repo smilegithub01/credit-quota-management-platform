@@ -1032,7 +1032,18 @@ public class UnifiedCreditServiceImpl implements UnifiedCreditService {
     }
 
     @Override
-    public Object getTotalQuotaInfo(String customerId) {
+    public QuotaUsageDetail recordQuotaUsageDetail(QuotaUsageDetail quotaUsageDetail) {
+        // 设置创建时间
+        quotaUsageDetail.setUsageTime(LocalDateTime.now());
+        
+        // 保存到数据库
+        quotaUsageDetailMapper.insert(quotaUsageDetail);
+        
+        return quotaUsageDetail;
+    }
+
+    @Override
+    public QuotaResponseDTO getTotalQuotaInfo(String customerId) {
         QuotaResponseDTO response = new QuotaResponseDTO();
         try {
             List<CreditQuota> quotas = creditQuotaMapper.selectByCustomerId(customerId);
@@ -1074,7 +1085,7 @@ public class UnifiedCreditServiceImpl implements UnifiedCreditService {
     }
 
     @Override
-    public Object getGroupTotalQuotaInfo(String groupId) {
+    public QuotaResponseDTO getGroupTotalQuotaInfo(String groupId) {
         QuotaResponseDTO response = new QuotaResponseDTO();
         try {
             // 获取集团及其所有成员
@@ -1130,14 +1141,21 @@ public class UnifiedCreditServiceImpl implements UnifiedCreditService {
     }
 
     @Override
-    public Object getGroupMemberQuotas(String groupId) {
+    public QuotaResponseDTO getGroupMemberQuotas(String groupId) {
         // 实现获取集团成员额度汇总
         try {
+            QuotaResponseDTO response = new QuotaResponseDTO();
             List<GroupRelationship> relationships = groupRelationshipMapper.selectByParentCustomerId(groupId);
-            return relationships; // 简化实现
+            response.setSuccess(true);
+            response.setMessage("获取集团成员额度成功");
+            response.setData(relationships);
+            return response;
         } catch (Exception e) {
             log.error("Failed to get group member quotas", e);
-            return null;
+            QuotaResponseDTO response = new QuotaResponseDTO();
+            response.setSuccess(false);
+            response.setMessage("获取集团成员额度失败");
+            return response;
         }
     }
 
